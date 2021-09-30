@@ -1,0 +1,170 @@
+Microsoft (R) Macro Assembler Version 5.10                  9/29/21 22:18:34
+                                                             Page     1-1
+
+
+       1				; IntelX86 Processor Addressing Modes S
+					tudy Program
+       2				
+       3 = 0024				EOL EQU '$'
+       4 = 0002				ind EQU 2
+       5 = 01F4				n1 EQU 500
+       6 =-0032				n2 EQU -50
+       7				
+       8				; Program stack
+       9 0000				AStack SEGMENT STACK
+      10 0000  000C[			    DW 12 DUP(?)
+      11	   ????			
+      12			 ]	
+      13				
+      14 0018				AStack ENDS
+      15				
+      16				; Program data
+      17 0000				DATA SEGMENT
+      18				
+      19				; Data description directives
+      20 0000  0000			mem1 DW 0
+      21 0002  0000			mem2 DW 0
+      22 0004  0000			mem3 DW 0
+      23 0006  01 02 03 04 08 07	vec1 DB 1,2,3,4,8,7,6,5
+      24       06 05			
+      25 000E  F6 EC 0A 14 E2 D8	vec2 DB -10,-20,10,20,-30,-40,30,40
+      26       1E 28			
+      27 0016  01 02 03 04 FC FD	matr DB 1,2,3,4,-4,-3,-2,-1,5,6,7,8,-8,
+					-7,-6,-5
+      28       FE FF 05 06 07 08	
+      29       F8 F9 FA FB		
+      30 0026				DATA ENDS
+      31				
+      32				
+      33				; Program code
+      34 0000				CODE SEGMENT
+      35				 ASSUME CS:CODE, DS:DATA, SS:AStack
+      36				
+      37				
+      38				; Head procedure
+      39 0000				Main PROC FAR
+      40 0000  1E			    push DS
+      41 0001  2B C0			    sub AX,AX
+      42 0003  50			    push AX
+      43 0004  B8 ---- R		    mov AX,DATA
+      44 0007  8E D8			    mov DS,AX
+      45				
+      46				; CHECKING THE ADDRESSING MODES AT THE 
+					OFFSET LEVEL
+      47				; Register addressing
+      48 0009  B8 01F4			    mov ax,n1
+      49 000C  8B C8			    mov cx,ax
+      50 000E  B3 24			    mov bl,EOL
+      51 0010  B7 CE			    mov bh,n2
+Microsoft (R) Macro Assembler Version 5.10                  9/29/21 22:18:34
+                                                             Page     1-2
+
+
+      52				
+      53				; Direct addressing
+      54 0012  C7 06 0002 R FFCE	    mov mem2,n2 
+      55 0018  BB 0006 R		    mov bx,OFFSET vec1
+      56 001B  A3 0000 R		    mov mem1,ax
+      57				
+      58				; Indirect addressing
+      59 001E  8A 07			    mov al,[bx]
+      60				;    mov mem3,[bx] 
+      61				
+      62				; Based addressing
+      63 0020  8A 47 03			    mov al,[bx]+3
+      64 0023  8B 4F 03			    mov cx,3[bx]
+      65				
+      66				; Indexed addressing
+      67 0026  BF 0002			    mov di,ind
+      68 0029  8A 85 000E R		    mov al,vec2[di]
+      69				;    mov cx,vec2[di] 
+      70				
+      71				; Basing and Indexing Addressing
+      72 002D  BB 0003			    mov bx,3
+      73 0030  8A 81 0016 R		    mov al,matr[bx][di] 
+      74				;    mov cx,matr[bx][di] 
+      75				;    mov ax,matr[bx*4][di] 
+      76				
+      77				; VERIFICATION OF ADDRESSING MODES TAKI
+					NG INTO ACCOUNT SEGMENTS
+      78				; Segment redefinition
+      79				; ------ variant 1
+      80 0034  B8 ---- R		    mov ax, SEG vec2
+      81 0037  8E C0			    mov es, ax
+      82 0039  26: 8B 07		    mov ax, es:[bx]
+      83 003C  B8 0000			    mov ax, 0
+      84				
+      85				; ------ variant 2
+      86 003F  8E C0			    mov es, ax
+      87 0041  1E			    push ds
+      88 0042  07			    pop es
+      89 0043  26: 8B 4F FF		    mov cx, es:[bx-1]
+      90 0047  91			    xchg cx,ax
+      91				
+      92				; ------ variant 3
+      93 0048  BF 0002			    mov di,ind
+      94 004B  26: 89 01		    mov es:[bx+di],ax
+      95				
+      96				; ------ variant 4
+      97 004E  8B EC			    mov bp,sp
+      98				;    mov ax,matr[bp+bx] 
+      99				;    mov ax,matr[bp+di+si] 
+     100				
+     101				; Using a stack segment
+     102 0050  FF 36 0000 R		    push mem1 
+     103 0054  FF 36 0002 R		    push mem2
+     104 0058  8B EC			    mov bp,sp
+Microsoft (R) Macro Assembler Version 5.10                  9/29/21 22:18:34
+                                                             Page     1-3
+
+
+     105 005A  8B 56 02			    mov dx,[bp]+2
+     106 005D  CA 0002			    ret 2
+     107 0060				Main ENDP
+     108 0060				CODE ENDS
+     109				 END Main
+Microsoft (R) Macro Assembler Version 5.10                  9/29/21 22:18:34
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	0060	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0026	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+EOL  . . . . . . . . . . . . . .  	NUMBER	0024	
+
+IND  . . . . . . . . . . . . . .  	NUMBER	0002	
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0060
+MATR . . . . . . . . . . . . . .  	L BYTE	0016	DATA
+MEM1 . . . . . . . . . . . . . .  	L WORD	0000	DATA
+MEM2 . . . . . . . . . . . . . .  	L WORD	0002	DATA
+MEM3 . . . . . . . . . . . . . .  	L WORD	0004	DATA
+
+N1 . . . . . . . . . . . . . . .  	NUMBER	01F4	
+N2 . . . . . . . . . . . . . . .  	NUMBER	-0032	
+
+VEC1 . . . . . . . . . . . . . .  	L BYTE	0006	DATA
+VEC2 . . . . . . . . . . . . . .  	L BYTE	000E	DATA
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  mainedit		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    102 Source  Lines
+    102 Total   Lines
+     19 Symbols
+
+  47248 + 457965 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
