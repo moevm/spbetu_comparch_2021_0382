@@ -50,8 +50,7 @@ Main PROC FAR
 
 ; Indirect addressing
     mov al,[bx]
-    mov mem3,[bx] 
-                 
+;    mov mem3,[bx] 
 
 ; Based addressing
     mov al,[bx]+3
@@ -60,13 +59,13 @@ Main PROC FAR
 ; Indexed addressing
     mov di,ind
     mov al,vec2[di]
-    mov cx,vec2[di] 
+;    mov cx,vec2[di] 
 
 ; Basing and Indexing Addressing
     mov bx,3
     mov al,matr[bx][di] 
-    mov cx,matr[bx][di] 
-    mov ax,matr[bx*4][di]  
+;    mov cx,matr[bx][di] 
+;    mov ax,matr[bx*4][di] 
 
 ; VERIFICATION OF ADDRESSING MODES TAKING INTO ACCOUNT SEGMENTS
 ; Segment redefinition
@@ -89,8 +88,8 @@ Main PROC FAR
 
 ; ------ variant 4
     mov bp,sp
-    mov ax,matr[bp+bx] 
-    mov ax,matr[bp+di+si] 
+;    mov ax,matr[bp+bx] 
+;    mov ax,matr[bp+di+si] 
 
 ; Using a stack segment
     push mem1 
@@ -101,4 +100,3 @@ Main PROC FAR
 Main ENDP
 CODE ENDS
  END Main
-
