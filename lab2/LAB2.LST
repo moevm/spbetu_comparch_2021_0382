@@ -1,0 +1,177 @@
+Microsoft (R) Macro Assembler Version 5.10                  10/5/21 21:48:30
+                                                             Page     1-1
+
+
+       1				; Программа изучения �
+					�ежимов адресации про
+					цессора IntelX86
+       2 = 0024				EOL EQU '$'
+       3 = 0002				ind EQU 2
+       4 = 01F4				n1 EQU 500
+       5 =-0032				n2 EQU -50
+       6				
+       7				; Стек программы
+       8 0000				AStack SEGMENT STACK
+       9 0000  000C[			DW 12 DUP(?)
+      10	   ????			
+      11			 ]	
+      12				
+      13 0018				AStack ENDS
+      14				
+      15				; Данные программы
+      16 0000				DATA SEGMENT
+      17				
+      18				; Директивы описания �
+					�анных
+      19 0000  0000			mem1 DW 0
+      20 0002  0000			mem2 DW 0
+      21 0004  0000			mem3 DW 0
+      22 0006  0B 0C 0D 0E 12 11	vec1 DB 11,12,13,14,18,17,16,15
+      23       10 0F			
+      24 000E  0A 14 F6 EC 1E 28	vec2 DB 10,20,-10,-20,30,40,-30,-40
+      25       E2 D8			
+      26 0016  01 02 FC FD 03 04	matr DB 1,2,-4,-3,3,4,-2,-1,5,6,-8,-7,7
+					,8,-6,-5
+      27       FE FF 05 06 F8 F9	
+      28       07 08 FA FB		
+      29 0026				DATA ENDS
+      30				
+      31				; Код программы
+      32 0000				CODE SEGMENT
+      33				ASSUME CS:CODE, DS:DATA, SS:AStack
+      34				
+      35				; Головная процедура
+      36 0000				Main PROC FAR
+      37 0000  1E			push DS
+      38 0001  2B C0			sub AX,AX
+      39 0003  50			push AX
+      40 0004  B8 ---- R		mov AX,DATA
+      41 0007  8E D8			mov DS,AX
+      42				
+      43				; ПРОВЕРКА РЕЖИМОВ АД�
+					�ЕСАЦИИ НА УРОВНЕ СМЕ�
+					�ЕНИЙ
+      44				; Регистровая адресац
+					ия
+      45 0009  B8 01F4			mov ax,n1
+      46 000C  8B C8			mov cx,ax
+      47 000E  B3 24			mov bl,EOL
+Microsoft (R) Macro Assembler Version 5.10                  10/5/21 21:48:30
+                                                             Page     1-2
+
+
+      48 0010  B7 CE			mov bh,n2
+      49				
+      50				; Прямая адресация
+      51 0012  C7 06 0002 R FFCE	mov mem2,n2
+      52 0018  BB 0006 R		mov bx,OFFSET vec1
+      53 001B  A3 0000 R		mov mem1,ax
+      54				
+      55				; Косвенная адресация
+      56 001E  8A 07			mov al,[bx]
+      57				;mov mem3,[bx]
+      58				
+      59				; Базированная адреса
+					ция
+      60 0020  8A 47 03			mov al,[bx]+3
+      61 0023  8B 4F 03			mov cx,3[bx]
+      62				
+      63				; Индексная адресация
+      64 0026  BF 0002			mov di,ind
+      65 0029  8A 85 000E R		mov al,vec2[di]
+      66				;mov cx,vec2[di]
+      67				
+      68				; Адресация с базиров�
+					�нием и индексировани
+					ем
+      69 002D  BB 0003			mov bx,3
+      70 0030  8A 81 0016 R		mov al,matr[bx][di]
+      71				;mov cx,matr[bx][di]
+      72				;mov ax,matr[bx*4][di]
+      73				
+      74				; ПРОВЕРКА РЕЖИМОВ АД�
+					�ЕСАЦИИ С УЧЕТОМ СЕГМ�
+					�НТОВ
+      75				; Переопределение сег
+					мента
+      76				; ------ вариант 1
+      77 0034  B8 ---- R		mov ax, SEG vec2
+      78 0037  8E C0			mov es, ax
+      79 0039  26: 8B 07		mov ax, es:[bx]
+      80 003C  B8 0000			mov ax, 0
+      81				
+      82				; ------ вариант 2
+      83 003F  8E C0			mov es, ax
+      84 0041  1E			push ds
+      85 0042  07			pop es
+      86 0043  26: 8B 4F FF		mov cx, es:[bx-1]
+      87 0047  91			xchg cx,ax
+      88				
+      89				; ------ вариант 3
+      90 0048  BF 0002			mov di,ind
+      91 004B  26: 89 01		mov es:[bx+di],ax
+      92				
+      93				; ------ вариант 4
+      94 004E  8B EC			mov bp,sp
+      95				;mov ax,matr[bp+bx]
+Microsoft (R) Macro Assembler Version 5.10                  10/5/21 21:48:30
+                                                             Page     1-3
+
+
+      96				;mov ax,matr[bp+di+si]
+      97				
+      98				; Использование сегме
+					нта стека
+      99 0050  FF 36 0000 R		push mem1
+     100 0054  FF 36 0002 R		push mem2
+     101 0058  8B EC			mov bp,sp
+     102 005A  8B 56 02			mov dx,[bp]+2
+     103 005D  CA 0002			ret 2
+     104 0060				Main ENDP
+     105 0060				CODE ENDS
+     106				END Main
+Microsoft (R) Macro Assembler Version 5.10                  10/5/21 21:48:30
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	0060	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0026	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+EOL  . . . . . . . . . . . . . .  	NUMBER	0024	
+
+IND  . . . . . . . . . . . . . .  	NUMBER	0002	
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0060
+MATR . . . . . . . . . . . . . .  	L BYTE	0016	DATA
+MEM1 . . . . . . . . . . . . . .  	L WORD	0000	DATA
+MEM2 . . . . . . . . . . . . . .  	L WORD	0002	DATA
+MEM3 . . . . . . . . . . . . . .  	L WORD	0004	DATA
+
+N1 . . . . . . . . . . . . . . .  	NUMBER	01F4	
+N2 . . . . . . . . . . . . . . .  	NUMBER	-0032	
+
+VEC1 . . . . . . . . . . . . . .  	L BYTE	0006	DATA
+VEC2 . . . . . . . . . . . . . .  	L BYTE	000E	DATA
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab2		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     99 Source  Lines
+     99 Total   Lines
+     19 Symbols
+
+  47296 + 459964 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
