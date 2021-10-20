@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 5.10                  10/5/21 18:33:25
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 10:42:06
                                                              Page     1-1
 
 
@@ -56,7 +56,7 @@
 				 
 				; ПРОВЕРКА РЕЖИМОВ АДРЕСА�
 				�ИИ НА УРОВНЕ СМЕЩЕНИЙ
-Microsoft (R) Macro Assembler Version 5.10                  10/5/21 18:33:25
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 10:42:06
                                                              Page     1-2
 
 
@@ -76,8 +76,7 @@
 				; Косвенная адресация
 				
  001E  8A 07			 	mov al,[bx]
-				 	mov mem3,[bx]
-hello.asm(59): error A2052: Improper operand type
+				 	; mov mem3,[bx]
 					
 				; Базированная адресация
 				
@@ -89,7 +88,7 @@ hello.asm(59): error A2052: Improper operand type
  0026  BF 0002			 	mov di,ind
  0029  8A 85 000E R		 	mov al,vec2[di]
  002D  8B 8D 000E R		 	mov cx,vec2[di]
-hello.asm(70): warning A4031: Operand types must match
+hello1.asm(70): warning A4031: Operand types must match
 				
 				; Адресация с базирование�
 				� и индексированием
@@ -97,9 +96,8 @@ hello.asm(70): warning A4031: Operand types must match
  0031  BB 0003			 	mov bx,3
  0034  8A 81 0016 R		 	mov al,matr[bx][di]
  0038  8B 89 0016 R		 	mov cx,matr[bx][di]
-hello.asm(76): warning A4031: Operand types must match
- 003C  8B 85 0022 R		 	mov ax,matr[bx*4][di]
-hello.asm(77): error A2055: Illegal register value
+hello1.asm(76): warning A4031: Operand types must match
+				 	; mov ax,matr[bx*4][di]
 				 
 				; ПРОВЕРКА РЕЖИМОВ АДРЕСА�
 				�ИИ С УЧЕТОМ СЕГМЕНТОВ
@@ -107,49 +105,46 @@ hello.asm(77): error A2055: Illegal register value
 				а
 				; ------ вариант 1
 				
- 0040  B8 ---- R		 	mov ax, SEG vec2
- 0043  8E C0			 	mov es, ax
- 0045  26: 8B 07		 	mov ax, es:[bx]
- 0048  B8 0000			 	mov ax, 0
+ 003C  B8 ---- R		 	mov ax, SEG vec2
+ 003F  8E C0			 	mov es, ax
+ 0041  26: 8B 07		 	mov ax, es:[bx]
+ 0044  B8 0000			 	mov ax, 0
 				
 				; ------ вариант 2
 				
- 004B  8E C0			 	mov es, ax
- 004D  1E			 	push ds
- 004E  07			 	pop es
- 004F  26: 8B 4F FF		 	mov cx, es:[bx-1]
-Microsoft (R) Macro Assembler Version 5.10                  10/5/21 18:33:25
+ 0047  8E C0			 	mov es, ax
+ 0049  1E			 	push ds
+ 004A  07			 	pop es
+ 004B  26: 8B 4F FF		 	mov cx, es:[bx-1]
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 10:42:06
                                                              Page     1-3
 
 
- 0053  91			 	xchg cx,ax
+ 004F  91			 	xchg cx,ax
 				
 				; ------ вариант 3
 				
- 0054  BF 0002			 	mov di,ind
- 0057  26: 89 01		 	mov es:[bx+di],ax
+ 0050  BF 0002			 	mov di,ind
+ 0053  26: 89 01		 	mov es:[bx+di],ax
 				
 				; ------ вариант 4
 				
- 005A  8B EC			 	mov bp,sp
- 005C  3E: 8B 86 0016 R		 	mov ax,matr[bp+bx]
-hello.asm(104): error A2046: Multiple base registers
- 0061  3E: 8B 83 0016 R		 	mov ax,matr[bp+di+si]
-hello.asm(105): error A2047: Multiple index registers
+ 0056  8B EC			 	mov bp,sp
+				 	; mov ax,matr[bp+bx]
+				 	; mov ax,matr[bp+di+si]
 				
 				; Использование сегмента �
 				�тека
 				
- 0066  FF 36 0000 R		 	push mem1
- 006A  FF 36 0002 R		 	push mem2
- 006E  8B EC			 	mov bp,sp
- 0070  8B 56 02			 	mov dx,[bp]+2
- 0073  CA 0002			 	ret 2
- 0076				Main    ENDP
-hello.asm(114): error A2006: Phase error between passes
- 0076				CODE    ENDS
+ 0058  FF 36 0000 R		 	push mem1
+ 005C  FF 36 0002 R		 	push mem2
+ 0060  8B EC			 	mov bp,sp
+ 0062  8B 56 02			 	mov dx,[bp]+2
+ 0065  CA 0002			 	ret 2
+ 0068				Main    ENDP
+ 0068				CODE    ENDS
 				 	END Main
-Microsoft (R) Macro Assembler Version 5.10                  10/5/21 18:33:25
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 10:42:06
                                                              Symbols-1
 
 
@@ -158,7 +153,7 @@ Segments and Groups:
                 N a m e         	Length	 Align	Combine Class
 
 ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
-CODE . . . . . . . . . . . . . .  	0076	PARA	NONE	
+CODE . . . . . . . . . . . . . .  	0068	PARA	NONE	
 DATA . . . . . . . . . . . . . .  	0026	PARA	NONE	
 
 Symbols:            
@@ -169,7 +164,7 @@ EOL  . . . . . . . . . . . . . .  	NUMBER	0024
 
 IND  . . . . . . . . . . . . . .  	NUMBER	0002	
 
-MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0076
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0068
 MATR . . . . . . . . . . . . . .  	L BYTE	0016	DATA
 MEM1 . . . . . . . . . . . . . .  	L WORD	0000	DATA
 MEM2 . . . . . . . . . . . . . .  	L WORD	0002	DATA
@@ -182,7 +177,7 @@ VEC1 . . . . . . . . . . . . . .  	L BYTE	0006	DATA
 VEC2 . . . . . . . . . . . . . .  	L BYTE	000E	DATA
 
 @CPU . . . . . . . . . . . . . .  	TEXT  0101h		
-@FILENAME  . . . . . . . . . . .  	TEXT  hello		
+@FILENAME  . . . . . . . . . . .  	TEXT  hello1		
 @VERSION . . . . . . . . . . . .  	TEXT  510		
 
 
@@ -190,7 +185,7 @@ VEC2 . . . . . . . . . . . . . .  	L BYTE	000E	DATA
     116 Total   Lines
      19 Symbols
 
-  47812 + 459448 Bytes symbol space free
+  47802 + 459458 Bytes symbol space free
 
       2 Warning Errors
-      5 Severe  Errors
+      0 Severe  Errors
