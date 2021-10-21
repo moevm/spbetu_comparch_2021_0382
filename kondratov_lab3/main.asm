@@ -23,41 +23,28 @@ Main PROC FAR
     mov ds, ax
 f1:
     mov ax, var_i
+    shl ax, 1 ;ax = 2i
     shl ax, 1 ;ax = 4i
-    shl ax, 1
     mov bx, var_a
     cmp bx, var_b
     jg f1_1
 f1_2:
-    mov bx, ax
+    mov bx, ax ;bx = 4i
     shr bx, 1 ;bx = 2i
     add ax, bx ;ax = 6i
+    mov cx, ax ;cx = 6i
     sub ax, 0Ah ;ax = 6i - 10
+    neg cx ;cx = -6i
+    add cx, 8h ;cx = -6i + 8
     jmp f1_end
 f1_1:
     neg ax
     sub ax, 3h ;ax = -4i - 3
+    mov cx, ax ;cx = -4i -3
+    add cx, 0Ah ;cx = -4i -3 + 10 = -4i + 7
 f1_end:
     mov var_i1, ax ; i1 = f1(i)
-f2:
-    mov ax, var_i
-    shl ax, 1
-    shl ax, 1 ;ax = 4i
-    mov bx, var_a
-    cmp bx, var_b
-    jg f2_1
-f2_2:
-    mov bx, ax
-    shr bx, 1 ;bx = 2i
-    add ax, bx ;ax = 6i
-    neg ax ;ax = -6i 
-    add ax, 8h
-    jmp f2_end
-f2_1:
-    neg ax
-    add ax, 7h
-f2_end:
-    mov var_i2, ax ;i2 = f2(i)
+    mov var_i2, cx ; i2 = f2(i)
 f3:
     mov bx, var_i2
     cmp bx, 0h
