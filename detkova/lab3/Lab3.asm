@@ -6,10 +6,10 @@ AStack    ENDS
 DATA      SEGMENT
 
 
-A	  DW -15
-B	  DW -6
+A	  DW 0
+B	  DW 0
 I	  DW 4
-K	  DW 1 
+K	  DW 0
 I1	  DW 0
 I2	  DW 0
 RES	  DW 0
