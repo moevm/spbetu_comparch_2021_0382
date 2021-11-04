@@ -48,8 +48,7 @@ else_12:
 	sub i2, ax ;8-6i
 
 F_3:
-	mov cx, k
-	cmp cx, 0h
+	cmp k, 0h
 	jnl else_3
 
 then_3:
