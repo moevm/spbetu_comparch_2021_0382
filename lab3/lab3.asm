@@ -72,7 +72,7 @@ min_6:
     jmp f3_end
 
 k_not_0:
-    cmp i1,0
+    cmp i2,0
     jge abs_i2 ;if i2>=0
 
     ;if i2<0
