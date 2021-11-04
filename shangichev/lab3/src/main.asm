@@ -1,4 +1,3 @@
-
 ; Program stack
 AStack SEGMENT STACK
     DW 12 DUP(?)
@@ -52,7 +51,7 @@ Main PROC FAR
     shl ax, 1  
     mov i2, ax
     
-    jmp absi1
+    jmp absi2
 
     secondcase: ; a <= b
         mov bx, i
@@ -62,20 +61,12 @@ Main PROC FAR
         sub bx, ax ; bx = 3i
 
         ; calculate i1
-    	mov i1, 6
+        mov i1, 6
         add i1, bx
 
         ; calculate i2
         mov i2, 2
         sub i2, bx
-
-    absi1:
-        cmp i1, 0
-        jl changesigni1
-        jmp absi2    
-
-    changesigni1:
-        neg i1
 
     absi2:
         cmp i2, 0
@@ -88,7 +79,7 @@ Main PROC FAR
     f3:
         mov ax, k
         cmp ax, 0
-        jl negative ; k < 0
+        jl absi1 ; k < 0
 
     kge0:        
         mov ax, i2
@@ -102,6 +93,12 @@ Main PROC FAR
         mov answer, 4
         jmp exit
 
+
+    absi1:
+        cmp i1, 0
+        jge negative
+        neg i1
+
     negative:
         mov ax, i1
         sub ax, i2
@@ -112,17 +109,3 @@ Main PROC FAR
 Main ENDP
 CODE ENDS
  END Main
-
-
-
-
-
-
-
-
-
-
-
-
-
-
