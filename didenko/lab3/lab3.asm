@@ -26,51 +26,44 @@ Main PROC FAR
  mov DS,AX
  
  ;Entering data
- mov a,0
- mov b,0
- mov i,0
- mov k,0
+ mov a,5
+ mov b,5
+ mov i,2
+ mov k,-1
  
- mov AX, a
- cmp AX, b
- 
- JG f1_over
- JLE f1_under
-f1_over:
  mov AX, i
- shl AX, 1; = 2i
+ shl AX,1; = 2i
+ mov BX, a
+ cmp BX, b
+ 
+ JLE f1_under
+ 
+f1_over:
  mov i1, 15
  sub i1, AX; = 15 - 2i
- JMP f2_over
+ mov AX, i1
+ 
+ shl AX,1; = 30 - 4i
+ sub AX,10; = 20 - 4i
+ mov i2,AX
+ 
+ JMP f3_choice
+ 
 f1_under:
- mov AX, i
- shl AX, 1; = 2i
  add AX, i; = 3i
  add AX, 4 ; = 3i + 4
  mov i1, AX
- JMP f2_under
-f2_over:
- mov AX, i
- shl AX, 1 ; = 2i
- shl AX, 1 ; = 4i
- mov i2, 20
- sub i2, AX ; = 20 - 4i
- JMP f3_choice
-f2_under:
- mov AX, i
- shl AX, 1; = 2i
- shl AX, 1; = 4i
- add AX, i; = 5i
- add AX, i; = 6i
- mov i2, 6
- sub i2, AX
- JMP f3_choice
+
+ shl AX,1
+ sub AX,14
+ neg AX
+ mov i2,AX
+ 
 f3_choice:
  mov AX, k
  cmp AX, 0
- JL f3_under
- JMP f3_over
-  
+ JGE f3_over
+ 
 f3_under:
  mov AX,i1
  sub AX,i2; = i1 - i2

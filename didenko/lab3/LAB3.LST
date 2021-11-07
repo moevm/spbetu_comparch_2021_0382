@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 5.10                  10/26/21 25:42:4
+Microsoft (R) Macro Assembler Version 5.10                  11/7/21 14:26:07
                                                              Page     1-1
 
 
@@ -33,83 +33,76 @@
  0007  8E D8			 mov DS,AX
 				 
 				 ;Entering data
- 0009  C7 06 0000 R 0000	 mov a,0
- 000F  C7 06 0002 R 0000	 mov b,0
- 0015  C7 06 0004 R 0000	 mov i,0
- 001B  C7 06 0006 R 0000	 mov k,0
+ 0009  C7 06 0000 R 0005	 mov a,5
+ 000F  C7 06 0002 R 0005	 mov b,5
+ 0015  C7 06 0004 R 0002	 mov i,2
+ 001B  C7 06 0006 R FFFF	 mov k,-1
 				 
- 0021  A1 0000 R		 mov AX, a
- 0024  3B 06 0002 R		 cmp AX, b
+ 0021  A1 0004 R		 mov AX, i
+ 0024  D1 E0			 shl AX,1; = 2i
+ 0026  8B 1E 0000 R		 mov BX, a
+ 002A  3B 1E 0002 R		 cmp BX, b
 				 
- 0028  7F 02			 JG f1_over
- 002A  7E 12			 JLE f1_under
- 002C				f1_over:
- 002C  A1 0004 R		 mov AX, i
- 002F  D1 E0			 shl AX, 1; = 2i
- 0031  C7 06 0008 R 000F	 mov i1, 15
- 0037  29 06 0008 R		 sub i1, AX; = 15 - 2i
- 003B  EB 13 90			 JMP f2_over
- 003E				f1_under:
- 003E  A1 0004 R		 mov AX, i
- 0041  D1 E0			 shl AX, 1; = 2i
- 0043  03 06 0004 R		 add AX, i; = 3i
- 0047  05 0004			 add AX, 4 ; = 3i + 4
- 004A  A3 0008 R		 mov i1, AX
- 004D  EB 15 90			 JMP f2_under
-Microsoft (R) Macro Assembler Version 5.10                  10/26/21 25:42:4
+ 002E  7E 18			 JLE f1_under
+				 
+ 0030				f1_over:
+ 0030  C7 06 0008 R 000F	 mov i1, 15
+ 0036  29 06 0008 R		 sub i1, AX; = 15 - 2i
+ 003A  A1 0008 R		 mov AX, i1
+				 
+ 003D  D1 E0			 shl AX,1; = 30 - 4i
+ 003F  2D 000A			 sub AX,10; = 20 - 4i
+ 0042  A3 000A R		 mov i2,AX
+				 
+ 0045  EB 15 90			 JMP f3_choice
+				 
+Microsoft (R) Macro Assembler Version 5.10                  11/7/21 14:26:07
                                                              Page     1-2
 
 
- 0050				f2_over:
- 0050  A1 0004 R		 mov AX, i
- 0053  D1 E0			 shl AX, 1 ; = 2i
- 0055  D1 E0			 shl AX, 1 ; = 4i
- 0057  C7 06 000A R 0014	 mov i2, 20
- 005D  29 06 000A R		 sub i2, AX ; = 20 - 4i
- 0061  EB 1D 90			 JMP f3_choice
- 0064				f2_under:
- 0064  A1 0004 R		 mov AX, i
- 0067  D1 E0			 shl AX, 1; = 2i
- 0069  D1 E0			 shl AX, 1; = 4i
- 006B  03 06 0004 R		 add AX, i; = 5i
- 006F  03 06 0004 R		 add AX, i; = 6i
- 0073  C7 06 000A R 0006	 mov i2, 6
- 0079  29 06 000A R		 sub i2, AX
- 007D  EB 01 90			 JMP f3_choice
- 0080				f3_choice:
- 0080  A1 0006 R		 mov AX, k
- 0083  3D 0000			 cmp AX, 0
- 0086  7C 03			 JL f3_under
- 0088  EB 1B 90			 JMP f3_over
-				  
- 008B				f3_under:
- 008B  A1 0008 R		 mov AX,i1
- 008E  2B 06 000A R		 sub AX,i2; = i1 - i2
- 0092  3D 0000			 cmp AX, 0
- 0095  7D 02			 JGE positive
- 0097  F7 D8			 NEG AX; abs AX
- 0099				 positive:
- 0099  3D 0002			 cmp AX, 2
- 009C  72 18			 JB bigger
- 009E  C7 06 000C R 0002	 mov res, 2
- 00A4  CB			 ret
-				  
- 00A5				f3_over:
- 00A5  A1 000A R		 mov AX, i2
- 00A8  F7 D8			 NEG AX; -i2
- 00AA  3D FFFA			 cmp AX, -6
- 00AD  7D 07			 JGE bigger
- 00AF  C7 06 000C R FFFA	 mov res, -6
- 00B5  CB			 ret
-				 
- 00B6				bigger:
- 00B6  A3 000C R		 mov res, AX
- 00B9  CB			 ret
+ 0048				f1_under:
+ 0048  03 06 0004 R		 add AX, i; = 3i
+ 004C  05 0004			 add AX, 4 ; = 3i + 4
+ 004F  A3 0008 R		 mov i1, AX
 				
- 00BA				Main ENDP
- 00BA				CODE ENDS
+ 0052  D1 E0			 shl AX,1
+ 0054  2D 000E			 sub AX,14
+ 0057  F7 D8			 neg AX
+ 0059  A3 000A R		 mov i2,AX
+				 
+ 005C				f3_choice:
+ 005C  A1 0006 R		 mov AX, k
+ 005F  3D 0000			 cmp AX, 0
+ 0062  7D 1A			 JGE f3_over
+				 
+ 0064				f3_under:
+ 0064  A1 0008 R		 mov AX,i1
+ 0067  2B 06 000A R		 sub AX,i2; = i1 - i2
+ 006B  3D 0000			 cmp AX, 0
+ 006E  7D 02			 JGE positive
+ 0070  F7 D8			 NEG AX; abs AX
+ 0072				 positive:
+ 0072  3D 0002			 cmp AX, 2
+ 0075  72 18			 JB bigger
+ 0077  C7 06 000C R 0002	 mov res, 2
+ 007D  CB			 ret
+				  
+ 007E				f3_over:
+ 007E  A1 000A R		 mov AX, i2
+ 0081  F7 D8			 NEG AX; -i2
+ 0083  3D FFFA			 cmp AX, -6
+ 0086  7D 07			 JGE bigger
+ 0088  C7 06 000C R FFFA	 mov res, -6
+ 008E  CB			 ret
+				 
+ 008F				bigger:
+ 008F  A3 000C R		 mov res, AX
+ 0092  CB			 ret
+				
+ 0093				Main ENDP
+ 0093				CODE ENDS
 				 END Main
-Microsoft (R) Macro Assembler Version 5.10                  10/26/21 25:42:4
+Microsoft (R) Macro Assembler Version 5.10                  11/7/21 14:26:07
                                                              Symbols-1
 
 
@@ -118,7 +111,7 @@ Segments and Groups:
                 N a m e         	Length	 Align	Combine Class
 
 ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
-CODE . . . . . . . . . . . . . .  	00BA	PARA	NONE	
+CODE . . . . . . . . . . . . . .  	0093	PARA	NONE	
 DATA . . . . . . . . . . . . . .  	0010	PARA	NONE	
 
 Symbols:            
@@ -128,15 +121,13 @@ Symbols:
 A  . . . . . . . . . . . . . . .  	L WORD	0000	DATA
 
 B  . . . . . . . . . . . . . . .  	L WORD	0002	DATA
-BIGGER . . . . . . . . . . . . .  	L NEAR	00B6	CODE
+BIGGER . . . . . . . . . . . . .  	L NEAR	008F	CODE
 
-F1_OVER  . . . . . . . . . . . .  	L NEAR	002C	CODE
-F1_UNDER . . . . . . . . . . . .  	L NEAR	003E	CODE
-F2_OVER  . . . . . . . . . . . .  	L NEAR	0050	CODE
-F2_UNDER . . . . . . . . . . . .  	L NEAR	0064	CODE
-F3_CHOICE  . . . . . . . . . . .  	L NEAR	0080	CODE
-F3_OVER  . . . . . . . . . . . .  	L NEAR	00A5	CODE
-F3_UNDER . . . . . . . . . . . .  	L NEAR	008B	CODE
+F1_OVER  . . . . . . . . . . . .  	L NEAR	0030	CODE
+F1_UNDER . . . . . . . . . . . .  	L NEAR	0048	CODE
+F3_CHOICE  . . . . . . . . . . .  	L NEAR	005C	CODE
+F3_OVER  . . . . . . . . . . . .  	L NEAR	007E	CODE
+F3_UNDER . . . . . . . . . . . .  	L NEAR	0064	CODE
 
 I  . . . . . . . . . . . . . . .  	L WORD	0004	DATA
 I1 . . . . . . . . . . . . . . .  	L WORD	0008	DATA
@@ -144,9 +135,9 @@ I2 . . . . . . . . . . . . . . .  	L WORD	000A	DATA
 
 K  . . . . . . . . . . . . . . .  	L WORD	0006	DATA
 
-MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 00BA
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0093
 
-POSITIVE . . . . . . . . . . . .  	L NEAR	0099	CODE
+POSITIVE . . . . . . . . . . . .  	L NEAR	0072	CODE
 
 RES  . . . . . . . . . . . . . .  	L WORD	000C	DATA
 
@@ -156,14 +147,10 @@ TST  . . . . . . . . . . . . . .  	L WORD	000E	DATA
 @FILENAME  . . . . . . . . . . .  	TEXT  lab3		
 @VERSION . . . . . . . . . . . .  	TEXT  510		
 
-Microsoft (R) Macro Assembler Version 5.10                  10/26/21 25:42:4
-                                                             Symbols-2
-
-
 
-    100 Source  Lines
-    100 Total   Lines
-     26 Symbols
+     93 Source  Lines
+     93 Total   Lines
+     24 Symbols
 
   47978 + 461329 Bytes symbol space free
 
