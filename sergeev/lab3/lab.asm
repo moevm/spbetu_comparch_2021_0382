@@ -26,51 +26,46 @@ Main PROC FAR
     mov DS,AX
 
     mov cx,i    ;cx=i
-    mov dx,cx   ;dx=i
     shl cx,1    ;cx=2i
-    mov di,cx   ;di=2i
 
     mov ax,a
     cmp ax,b
     jle Label_f1_2
 
 Label_f1_1:
-    mov ax,di   ;ax=2i
-    sub ax,2    ;ax=2i-2
-    mov i1,ax
+    sub cx,2    ;cx=2i-2
+    mov i1,cx
                 ;f2=-(6*i+8) if a>b, if a<=bx f2=9-3*(i-1)
-    shl cx,1    ;cx=4i
-    add cx,di   ;cx=6i
-    add cx,8    ;cx=6i+8
+    shl cx,1    ;cx=4i-4
+    add cx,i    ;cx=5i-4
+    add cx,i    ;cx=6i-4
+    add cx,12   ;cx=6i+8
     neg cx      ;cx=-(6i+8)
     mov i2,cx
     jmp Label_res
 
 Label_f1_2:
-    mov ax,2    ;ax=2
-    sub ax, di  ;ax=2-2i
-    sub ax, dx  ;ax=2-3i
-    mov i1,ax
+    sub cx, 2   ;cx=2i-2
+    add cx,i    ;cx=3i-2
+    neg cx      ;cx=2-3i
+    mov i1,cx
     
-    add cx,dx  ;cx=3i
-    neg cx     ;cx=-3i
-    mov ax,12
-    add ax,cx
-    mov i2,ax
+    add cx, 10  ;cx=12-3i
+    mov i2,cx
 
 Label_res:    ;f3=min(i1,i2) if k=0, if k!=0 f3=max(i1,i2)
-    mov bx,i2
-    mov res,ax
+    mov bx,i1   ;bx=i1
+    mov res,cx  ;res=i2
     cmp k,0
-    jne Label_res_else
-    cmp ax,i2
-    jle final
+    jne Label_res_else  ;if k!=0
+    cmp bx,i2   ;i1?i2   
+    jge final
     mov res,bx
     jmp final
 
 Label_res_else:
-    cmp ax,i2
-    jge final
+    cmp bx,i2   ;i1?i2
+    jle final
     mov res,bx
     jmp final
 
