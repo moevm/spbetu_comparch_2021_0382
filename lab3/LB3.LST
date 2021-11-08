@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 5.10                  11/2/21 23:43:46
+Microsoft (R) Macro Assembler Version 5.10                  11/8/21 19:10:04
                                                              Page     1-1
 
 
@@ -38,82 +38,81 @@
 				 
  0021  A1 0000 R		 mov AX, a
  0024  3B 06 0002 R		 cmp AX, b
- 0028  7F 02			 jg f1_first
- 002A  7E 1C			 jle f1_second
+ 0028  7F 49			 jg f1_first
 				
- 002C				f1_first:
- 002C  A1 0004 R		    mov AX, i
- 002F  D1 E0			    shl AX, 1 ; = 2i
- 0031  D1 E0			    shl AX, 1 ; = 4i
- 0033  C7 06 0008 R FFFD	    mov i1, -3
- 0039  29 06 0008 R		    sub i1, AX ; = -3 - 4i
- 003D  A1 0006 R		    mov AX, k
- 0040  3D 0000			    cmp AX, 0
- 0043  7C 23			    jl f2_first
- 0045  EB 6A 90			    jmp f3_second
+ 002A				f1_second:
+ 002A  A1 0004 R		    mov AX, i
+ 002D  D1 E0			    shl AX, 1 ; = 2i
+ 002F  03 06 0004 R		    add AX, i ; = 3i
+ 0033  D1 E0			    shl AX, 1 ; = 6i
+ 0035  C7 06 0008 R FFF6	    mov i1, -10
+ 003B  01 06 0008 R		    add i1, AX ; = -10 + 6i
+ 003F  A1 0006 R		    mov AX, k
+ 0042  3D 0000			    cmp AX, 0
+ 0045  7D 60			    jge f3_second
 				
- 0048				f1_second:
- 0048  A1 0004 R		    mov AX, i
- 004B  D1 E0			    shl AX, 1 ; = 2i
- 004D  03 06 0004 R		    add AX, i ; = 3i
-Microsoft (R) Macro Assembler Version 5.10                  11/2/21 23:43:46
+ 0047				f2_second:
+ 0047  A1 0004 R		    mov AX, i
+ 004A  D1 E0			    shl AX, 1 ; = 2i
+ 004C  03 06 0004 R		    add AX, i ; = 3i
+ 0050  C7 06 000A R 0006	    mov i2, 6
+Microsoft (R) Macro Assembler Version 5.10                  11/8/21 19:10:04
                                                              Page     1-2
 
 
- 0051  D1 E0			    shl AX, 1 ; = 6i
- 0053  C7 06 0008 R FFF6	    mov i1, -10
- 0059  01 06 0008 R		    add i1, AX ; = -10 + 6i
- 005D  A1 0006 R		    mov AX, k
- 0060  3D 0000			    cmp AX, 0
- 0063  7C 1F			    jl f2_second
- 0065  EB 4A 90			    jmp f3_second
+ 0056  01 06 000A R		    add i2, AX ; = 3i + 6
 				
- 0068				f2_first:
- 0068  A1 0004 R		    mov AX, i
- 006B  D1 E0			    shl AX, 1 ; = 2i
- 006D  D1 E0			    shl AX, 1 ; = 4i
- 006F  03 06 0004 R		    add AX, i ; = 5i
- 0073  03 06 0004 R		    add AX, i ; = 6i
- 0077  C7 06 000A R 0004	    mov i2, 4
- 007D  29 06 000A R		    sub i2, AX ; = 4 - 6i
- 0081  EB 1F 90			    jmp f3_first
+ 005A				i2abs:
+ 005A  F7 1E 000A R		      neg i2 ; = |i2|
+ 005E  78 FA			js i2abs
 				
- 0084				f2_second:
- 0084  A1 0004 R		    mov AX, i
- 0087  D1 E0			    shl AX, 1 ; = 2i
- 0089  03 06 0004 R		    add AX, i ; = 3i
- 008D  C7 06 000A R 0006	    mov i2, 6
- 0093  01 06 000A R		    add i2, AX ; = 3i + 6
- 0097  EB 09 90			    jmp f3_first
- 009A				 i1abs:
- 009A  F7 1E 0008 R		      neg i1
- 009E				  i2abs:
- 009E  F7 1E 000A R		      neg i2 ; = |i2|
+ 0060				i1abs:
+ 0060  F7 1E 0008 R		      neg i1
+ 0064  78 FA			js i1abs ; = |i1|
 				
- 00A2				f3_first:
- 00A2  78 F6			  js i1abs ; = |i1|
- 00A4  78 F8			  js i2abs
- 00A6  A1 0008 R		    mov AX,i1
- 00A9  03 06 000A R		    add AX,i2 ; = |i1| + |i2|
- 00AD  A3 000C R		    mov result, AX
- 00B0  CB			    ret
+ 0066				f3_first:
+ 0066  78 F2			    js i2abs
+ 0068  A1 0008 R		    mov AX,i1
+ 006B  03 06 000A R		    add AX,i2 ; = |i1| + |i2|
+ 006F  A3 000C R		    mov result, AX
+ 0072  CB			    ret
+				
+ 0073				f1_first:
+ 0073  A1 0004 R		    mov AX, i
+ 0076  D1 E0			    shl AX, 1 ; = 2i
+ 0078  D1 E0			    shl AX, 1 ; = 4i
+ 007A  C7 06 0008 R FFFD	    mov i1, -3
+ 0080  29 06 0008 R		    sub i1, AX ; = -3 - 4i
+ 0084  A1 0006 R		    mov AX, k
+ 0087  3D 0000			    cmp AX, 0
+ 008A  7D 1B			    jge f3_second
 				  
- 00B1				f3_second:
- 00B1  78 E7			  js i1abs ; = |i1|
- 00B3  A1 0008 R		    mov AX, i1
- 00B6  3D 0006			    cmp AX, 6
- 00B9  7D 07			    jge case
- 00BB  C7 06 000C R 0006	    mov result, 6
- 00C1  CB			    ret
-				 
- 00C2				case:
- 00C2  A3 000C R		    mov result, AX
- 00C5  CB			    ret
+ 008C				f2_first:
+ 008C  A1 0004 R		    mov AX, i
+ 008F  D1 E0			    shl AX, 1 ; = 2i
+ 0091  D1 E0			    shl AX, 1 ; = 4i
+ 0093  03 06 0004 R		    add AX, i ; = 5i
+ 0097  03 06 0004 R		    add AX, i ; = 6i
+ 009B  C7 06 000A R 0004	    mov i2, 4
+ 00A1  29 06 000A R		    sub i2, AX ; = 4 - 6i
+ 00A5  EB BF			    jmp f3_first
 				
- 00C6				Main ENDP
- 00C6				CODE ENDS
+ 00A7				f3_second:
+ 00A7  78 B7			  js i1abs ; = |i1|
+ 00A9  A1 0008 R		    mov AX, i1
+ 00AC  3D 0006			    cmp AX, 6
+ 00AF  7D 07			    jge case
+ 00B1  C7 06 000C R 0006	    mov result, 6
+ 00B7  CB			    ret
+				
+ 00B8				case:
+ 00B8  A3 000C R		    mov result, AX
+ 00BB  CB			    ret
+				
+ 00BC				Main ENDP
+ 00BC				CODE ENDS
 				 END Main
-Microsoft (R) Macro Assembler Version 5.10                  11/2/21 23:43:46
+Microsoft (R) Macro Assembler Version 5.10                  11/8/21 19:10:04
                                                              Symbols-1
 
 
@@ -122,7 +121,7 @@ Segments and Groups:
                 N a m e         	Length	 Align	Combine Class
 
 ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
-CODE . . . . . . . . . . . . . .  	00C6	PARA	NONE	
+CODE . . . . . . . . . . . . . .  	00BC	PARA	NONE	
 DATA . . . . . . . . . . . . . .  	000E	PARA	NONE	
 
 Symbols:            
@@ -133,24 +132,24 @@ A  . . . . . . . . . . . . . . .  	L WORD	0000	DATA
 
 B  . . . . . . . . . . . . . . .  	L WORD	0002	DATA
 
-CASE . . . . . . . . . . . . . .  	L NEAR	00C2	CODE
+CASE . . . . . . . . . . . . . .  	L NEAR	00B8	CODE
 
-F1_FIRST . . . . . . . . . . . .  	L NEAR	002C	CODE
-F1_SECOND  . . . . . . . . . . .  	L NEAR	0048	CODE
-F2_FIRST . . . . . . . . . . . .  	L NEAR	0068	CODE
-F2_SECOND  . . . . . . . . . . .  	L NEAR	0084	CODE
-F3_FIRST . . . . . . . . . . . .  	L NEAR	00A2	CODE
-F3_SECOND  . . . . . . . . . . .  	L NEAR	00B1	CODE
+F1_FIRST . . . . . . . . . . . .  	L NEAR	0073	CODE
+F1_SECOND  . . . . . . . . . . .  	L NEAR	002A	CODE
+F2_FIRST . . . . . . . . . . . .  	L NEAR	008C	CODE
+F2_SECOND  . . . . . . . . . . .  	L NEAR	0047	CODE
+F3_FIRST . . . . . . . . . . . .  	L NEAR	0066	CODE
+F3_SECOND  . . . . . . . . . . .  	L NEAR	00A7	CODE
 
 I  . . . . . . . . . . . . . . .  	L WORD	0004	DATA
 I1 . . . . . . . . . . . . . . .  	L WORD	0008	DATA
-I1ABS  . . . . . . . . . . . . .  	L NEAR	009A	CODE
+I1ABS  . . . . . . . . . . . . .  	L NEAR	0060	CODE
 I2 . . . . . . . . . . . . . . .  	L WORD	000A	DATA
-I2ABS  . . . . . . . . . . . . .  	L NEAR	009E	CODE
+I2ABS  . . . . . . . . . . . . .  	L NEAR	005A	CODE
 
 K  . . . . . . . . . . . . . . .  	L WORD	0006	DATA
 
-MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 00C6
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 00BC
 
 RESULT . . . . . . . . . . . . .  	L WORD	000C	DATA
 
@@ -159,8 +158,8 @@ RESULT . . . . . . . . . . . . .  	L WORD	000C	DATA
 @VERSION . . . . . . . . . . . .  	TEXT  510		
 
 
-    104 Source  Lines
-    104 Total   Lines
+    103 Source  Lines
+    103 Total   Lines
      25 Symbols
 
   47996 + 461311 Bytes symbol space free
