@@ -31,40 +31,7 @@ Main PROC FAR
  
  mov AX, a
  cmp AX, b
- jg f1_first
-
-f1_second:
-    mov AX, i
-    shl AX, 1 ; = 2i
-    add AX, i ; = 3i
-    shl AX, 1 ; = 6i
-    mov i1, -10
-    add i1, AX ; = -10 + 6i
-    mov AX, k
-    cmp AX, 0
-    jge f3_second
-
-f2_second:
-    mov AX, i
-    shl AX, 1 ; = 2i
-    add AX, i ; = 3i
-    mov i2, 6
-    add i2, AX ; = 3i + 6
-
-i2abs:
-      neg i2 ; = |i2|
-js i2abs
-
-i1abs:
-      neg i1
-js i1abs ; = |i1|
-
-f3_first:
-    js i2abs
-    mov AX,i1
-    add AX,i2 ; = |i1| + |i2|
-    mov result, AX
-    ret
+ jle f1_second
 
 f1_first:
     mov AX, i
@@ -72,9 +39,6 @@ f1_first:
     shl AX, 1 ; = 4i
     mov i1, -3
     sub i1, AX ; = -3 - 4i
-    mov AX, k
-    cmp AX, 0
-    jge f3_second
   
 f2_first:
     mov AX, i
@@ -84,10 +48,44 @@ f2_first:
     add AX, i ; = 6i
     mov i2, 4
     sub i2, AX ; = 4 - 6i
-    jmp f3_first
+    mov AX, k
+    cmp AX, 0
+    jge f3_second
+
+f3_first:
+    mov AX, i1
+    cmp AX, 0
+    js i1abs ; = |i1|
+    mov AX, i2
+    cmp AX, 0
+    js i2abs ; = |i2|
+    mov AX,i1
+    add AX,i2 ; = |i1| + |i2|
+    mov result, AX
+    ret
+
+f1_second:
+    mov AX, i
+    shl AX, 1 ; = 2i
+    add AX, i ; = 3i
+    shl AX, 1 ; = 6i
+    mov i1, -10
+    add i1, AX ; = -10 + 6i
+
+f2_second:
+    mov AX, i
+    shl AX, 1 ; = 2i
+    add AX, i ; = 3i
+    mov i2, 6
+    add i2, AX ; = 3i + 6
+    mov AX, k
+    cmp AX, 0
+    jl f3_first
 
 f3_second:
-  js i1abs ; = |i1|
+    mov AX, i1
+    cmp AX, 0
+    js i1abs ; = |i1|
     mov AX, i1
     cmp AX, 6
     jge case
@@ -97,6 +95,14 @@ f3_second:
 case:
     mov result, AX
     ret
+
+i2abs:
+      neg i2 ; = |i2|
+
+i1abs:
+      neg i1
+
+
 
 Main ENDP
 CODE ENDS
