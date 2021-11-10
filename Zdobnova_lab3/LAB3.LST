@@ -1,0 +1,165 @@
+Microsoft (R) Macro Assembler Version 5.10                  11/10/21 22:48:1
+                                                             Page     1-1
+
+
+				; Стек программы
+ 0000				AStack SEGMENT STACK
+ 0000  000C[				DW 12 DUP(?)
+	   ????			
+			 ]	
+				
+ 0018				AStack 		ENDS
+				
+				; Данные программы
+ 0000				DATA 		SEGMENT
+				;68 стр
+				; Директивы описания данн�
+				�х
+ 0000  0000			a 	DW 0
+ 0002  0000			b 	DW 0
+ 0004  0000			i 	DW 0
+ 0006  0000			k 	DW 0
+ 0008  0000			i1 	DW 0
+ 000A  0000			i2 	DW 0
+ 000C  0000			res 	DW 0
+				
+ 000E				DATA 	ENDS
+				
+				; Код программы
+ 0000				CODE 	SEGMENT
+				ASSUME CS:CODE, DS:DATA, SS:AStack
+				
+				; Головная процедура
+ 0000				Main PROC FAR
+ 0000  1E				push DS
+ 0001  2B C0				sub AX,AX
+ 0003  50				push AX
+ 0004  B8 ---- R			mov AX,DATA
+ 0007  8E D8				mov DS,AX
+ 0009  2B C0				sub AX,AX
+ 000B  A1 0000 R			mov AX,a
+ 000E  8B 1E 0002 R			mov BX,b
+ 0012  8B 0E 0004 R			mov CX,i
+ 0016  3B C3				cmp AX,BX
+ 0018  7F 02				JG Above
+ 001A  7E 24				JLE Less
+					
+ 001C				Above:         ;a > b
+ 001C  83 06 0008 R 0F			add i1,15  ;i1 = 15
+ 0021  D1 E1				sal CX,1   ;i = i * 2
+ 0023  83 2E 000A R 02			sub i2,2
+ 0028  01 0E 000A R			add i2,CX  ;тк различие на 
+				2
+ 002C  F7 D9				neg CX     ;i = - 2 * i
+ 002E  01 0E 0008 R			add i1,CX  ;i = 15 - 2i
+ 0032  8B 0E 0008 R			mov CX, i1
+ 0036  83 3E 0008 R 00			CMP i1,0
+ 003B  7C 2F				JL Abs1
+ 003D  EB 31 90				JMP F3
+Microsoft (R) Macro Assembler Version 5.10                  11/10/21 22:48:1
+                                                             Page     1-2
+
+
+					
+ 0040				Less:           ;a <= b
+ 0040  01 0E 0008 R			add i1,CX   ;i1 = i
+ 0044  D1 E1				sal CX,1    ;i = 2*i
+ 0046  03 0E 0008 R			add CX,i1   ;i = 3*i
+ 004A  89 0E 0008 R			mov i1,CX
+ 004E  83 06 0008 R 04			add i1,4
+ 0053  83 06 000A R 02			add i2,2
+ 0058  F7 D9				neg CX
+ 005A  01 0E 000A R			add i2,CX
+ 005E  8B 0E 0008 R			mov CX, i1
+ 0062  83 3E 0008 R 00			CMP i1,0
+ 0067  7C 03				JL Abs1
+ 0069  EB 05 90				JMP F3
+					
+ 006C				Abs1:           ;берем i1 по модул�
+				�
+ 006C  F7 1E 0008 R			neg i1
+					
+ 0070				F3:             
+ 0070  83 3E 0006 R 00			CMP k,0
+ 0075  74 1D				JZ Zero
+ 0077  01 0E 000C R			add res, CX
+ 007B  8B 0E 000A R			mov CX, i2
+ 007F  83 F9 00				CMP CX,0
+ 0082  7C 07				JL Abs2
+ 0084  01 0E 000C R			add res,CX
+ 0088  EB 1C 90				JMP Finish
+					
+ 008B				Abs2:         
+ 008B  F7 D9				neg CX
+ 008D  01 0E 000C R			add res, CX
+ 0091  EB 13 90				JMP Finish
+					
+ 0094				Zero:
+ 0094  83 F9 06				CMP CX,6
+ 0097  7C 09				JL MinI
+ 0099  C7 06 000C R 0006		mov res, 6
+ 009F  EB 05 90				JMP Finish
+					
+ 00A2				MinI:
+ 00A2  89 0E 000C R			mov res, CX
+				
+ 00A6				Finish:
+ 00A6  CB			    ret                     
+					
+ 00A7				Main	ENDP
+ 00A7				CODE	ENDS
+						END MAIN  
+Microsoft (R) Macro Assembler Version 5.10                  11/10/21 22:48:1
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	00A7	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	000E	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+A  . . . . . . . . . . . . . . .  	L WORD	0000	DATA
+ABOVE  . . . . . . . . . . . . .  	L NEAR	001C	CODE
+ABS1 . . . . . . . . . . . . . .  	L NEAR	006C	CODE
+ABS2 . . . . . . . . . . . . . .  	L NEAR	008B	CODE
+
+B  . . . . . . . . . . . . . . .  	L WORD	0002	DATA
+
+F3 . . . . . . . . . . . . . . .  	L NEAR	0070	CODE
+FINISH . . . . . . . . . . . . .  	L NEAR	00A6	CODE
+
+I  . . . . . . . . . . . . . . .  	L WORD	0004	DATA
+I1 . . . . . . . . . . . . . . .  	L WORD	0008	DATA
+I2 . . . . . . . . . . . . . . .  	L WORD	000A	DATA
+
+K  . . . . . . . . . . . . . . .  	L WORD	0006	DATA
+
+LESS . . . . . . . . . . . . . .  	L NEAR	0040	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 00A7
+MINI . . . . . . . . . . . . . .  	L NEAR	00A2	CODE
+
+RES  . . . . . . . . . . . . . .  	L WORD	000C	DATA
+
+ZERO . . . . . . . . . . . . . .  	L NEAR	0094	CODE
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab3		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     97 Source  Lines
+     97 Total   Lines
+     24 Symbols
+
+  48056 + 461251 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
