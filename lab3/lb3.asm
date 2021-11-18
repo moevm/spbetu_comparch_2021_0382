@@ -29,63 +29,45 @@ Main PROC FAR
  mov i,3
  mov k,4
  
+
+
+ mov DX, i
+ shl DX, 1 ; = 2i
  mov AX, a
  cmp AX, b
- jle f1_second
+ jle second
 
-f1_first:
-    mov AX, i
-    shl AX, 1 ; = 2i
+first:
+    mov AX, DX
     shl AX, 1 ; = 4i
     mov i1, -3
     sub i1, AX ; = -3 - 4i
-  
-f2_first:
-    mov AX, i
-    shl AX, 1 ; = 2i
-    shl AX, 1 ; = 4i
     add AX, i ; = 5i
     add AX, i ; = 6i
     mov i2, 4
     sub i2, AX ; = 4 - 6i
-    mov AX, k
-    cmp AX, 0
-    jge f3_second
+    jmp cmp_k
 
-f3_first:
-    mov AX, i1
-    cmp AX, 0
-    js i1abs ; = |i1|
-    mov AX, i2
-    cmp AX, 0
-    js i2abs ; = |i2|
-    mov AX,i1
-    add AX,i2 ; = |i1| + |i2|
-    mov result, AX
-    ret
-
-f1_second:
-    mov AX, i
-    shl AX, 1 ; = 2i
-    add AX, i ; = 3i
-    shl AX, 1 ; = 6i
-    mov i1, -10
-    add i1, AX ; = -10 + 6i
-
-f2_second:
-    mov AX, i
-    shl AX, 1 ; = 2i
+second:
+    mov AX, DX
     add AX, i ; = 3i
     mov i2, 6
     add i2, AX ; = 3i + 6
+    shl AX, 1 ; = 6i
+    mov i1, -10
+    add i1, AX ; = -10 + 6i
+    jmp cmp_k
+
+cmp_k:
+    cmp i1, 0
+    jge next
+    neg i1
+next:
     mov AX, k
     cmp AX, 0
     jl f3_first
 
 f3_second:
-    mov AX, i1
-    cmp AX, 0
-    js i1abs ; = |i1|
     mov AX, i1
     cmp AX, 6
     jge case
@@ -96,12 +78,15 @@ case:
     mov result, AX
     ret
 
-i2abs:
-      neg i2 ; = |i2|
-
-i1abs:
-      neg i1
-
+f3_first:
+    cmp i2, 0
+    jge f3_next
+    neg i2
+f3_next:
+    mov AX,i1
+    add AX,i2 ; = |i1| + |i2|
+    mov result, AX
+    ret
 
 
 Main ENDP
