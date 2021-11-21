@@ -11,7 +11,7 @@ int main() {
     std::cout << "0382 Chegodaeva Elizaveta.\nVar№3: Only Russian and Latin letters\n";
     fgets(input, 81, stdin);
     input[strlen(input)] = '\0';
-    std::ofstream file("resalt.txt");
+    std::ofstream file("result.txt");
     __asm {
         mov esi, offset input
         mov edi, offset output
