@@ -33,6 +33,11 @@ int main() {
 
             cmp al, 'A'
             jl Check
+            cmp al, 'Z'
+            jle Rec
+                
+            cmp al, 'a'
+            jl Check
             cmp al, 'z'
             jle Rec
 
