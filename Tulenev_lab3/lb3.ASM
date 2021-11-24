@@ -25,103 +25,76 @@ Main PROC FAR
     push AX
     mov AX,DATA
     mov DS,AX
-
-    mov cx, a
-    cmp cx, b 
-    jle f12 ; a <= b
-
-    ; i1   a > b
+	
     mov ax, i 
     mov bx, i
-    
-    mov cl, 03
-    shl ax, cl
+	
+    mov cl, 02
+    shl ax, cl	; ax=3*i
+    sub ax, bx	; bx=i
+	
+    mov cx, a
+    cmp cx, b 
+    jle f2 ; a <= b
 
-    shl bx, 1
-    sub ax, bx
-
+    ; i1   a > b 	 -(6*i - 4)=4-6*i
+	
     mov i1, 4
     sub i1, ax
+	sub i1, ax
 
-
-    ; i2   a > b
-    mov ax, i 
-	
-	mov cl, 02
-    shl ax, cl
+    ; i2   a > b 	 20 - 4*i
 	
     mov i2, 20
     sub i2, ax
-    
-    jmp continuation
+    sub i2, bx
 
-    f12:
-        ; i1   a <= b
-		mov ax, i
-		mov bx, i
-		
-		mov cl, 02
-        shl ax, cl
-		
-		sub ax, bx
+    jmp f3
+
+    f2:
+        ; i1   a <= b 	 3*(i+2)=6+3*i
 		
         mov i1, 6
         add i1, ax
 
-        ; i2   a <= b
-        mov ax, i 
-        mov bx, i
-    
-        mov cl, 03
-        shl ax, cl
-
-        shl bx, 1
-        sub ax, bx
+        ; i2   a <= b	-(6*i-6)=6-6*i
 
         mov i2, 6
         sub i2, ax
-
-    continuation:
-        cmp i1, 0 
-        jl reversi1 ; i1 < 0
-		
-		cmp i2, 0
-        jl reversi2 ; i2 < 0
-		
-        jmp f3
-
-    reversi1:
-        neg i1
-		
-		cmp i2, 0
-        jl reversi2 ; i2 < 0
-		
-	reversi2:
-		neg i2
+	sub i2, ax
 	    
     f3:
+	
+	cmp i1, 0
+	jge donext1 ; i1>=0
+	neg i1
+    donext1:
+	
         cmp k, 0
-        jl ff3 ; k < 0
+        jl f4 ; k < 0
 		
-		cmp i1, 6 
-		jl fff3 ; i1 < 0
+	mov res, 6
 		
-		mov ax, i1
-		mov res, ax
+	cmp i1, 6 
+	jl exit ; i1 < 6
 		
-		jmp exit
+	mov ax, i1
+	mov res, ax
+		
+	jmp exit
 
-    ff3: 
-		mov ax, i1
-		mov bx, i2
+    f4: 
+	
+	cmp i2, 0
+	jge donext2  ; i2>=0
+	neg i2
+	donext2:
+	
+	mov ax, i1
+	mov bx, i2
         mov res, ax
         add res, bx
-		
-		jmp exit
 	
-	fff3: 
-		mov res, 6
-		
     exit:
         ret 
 Main ENDP
