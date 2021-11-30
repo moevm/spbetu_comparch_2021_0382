@@ -1,0 +1,132 @@
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 23:20:0
+                                                             Page     1-1
+
+
+				.MODEL MEDIUM
+				
+				.STACK 200h
+				
+				.data
+ 0000  04			a db 4
+ 0001  03			b db 3
+ 0002  02			k db 2
+ 0003  01			i db 1
+				
+				.CODE
+ 0000  B8 ---- R		mov ax,@data
+ 0003  8E D8			mov ds, ax
+ 0005  33 C0			xor ax, ax
+				
+ 0007  8A 0E 0000 R		mov cl, a
+ 000B  A0 0003 R		mov al, i  ; al=i
+ 000E  8A 1E 0003 R		mov bl, i  ; bl=i
+				
+ 0012  3A 0E 0001 R		cmp cl, b 
+ 0016  7F 12			JG  L1
+					;f2
+ 0018  80 C3 02				add bl, 2   ; bl=i+2
+ 001B  8A CB				mov cl, bl
+ 001D  02 DB				add bl, bl  ; bl=2*(i+2)
+ 001F  02 D9				add bl, cl  ; bl=3*(i+2)
+					;f1
+ 0021  8A C3				mov al, bl  ; al = bl
+ 0023  D0 E0				shl al, 1   ; al = 6*(i+2)
+ 0025  2C 16				sub al, 22  ; al = 6*i-10
+ 0027  EB 16 90			jmp endL1
+				
+ 002A				L1:
+ 002A  D0 E0				sal al, 1 ; al=2*i
+ 002C  D0 E0				sal al, 1 ; al=4*i
+ 002E  04 03				add al, 3 ; al=4*i+3
+ 0030  F6 D8				neg al    ; al= -(4*i+3)
+					
+ 0032  8A D8				mov bl, al 
+ 0034  2A 1E 0003 R			sub bl, i
+ 0038  2A 1E 0003 R			sub bl, i
+ 003C  80 C3 07				add bl, 7
+					
+ 003F				endL1:
+				
+ 003F				getabsI1:
+ 003F  F6 D8				neg al
+ 0041  78 FC			js getabsI1	   ; al=|i1|
+				
+ 0043  80 3E 0002 R 00		cmp k, 0
+ 0048  7D 09			jge L2
+ 004A					getabsI2:
+ 004A  F6 DB					neg bl
+ 004C  78 FC				js getabsI2	   ; bl=|i2|
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 23:20:0
+                                                             Page     1-2
+
+
+					
+ 004E  02 C3				add al,bl
+ 0050  EB 07 90				jmp endL2
+ 0053				L2:
+ 0053  3C 06				cmp al, 6
+ 0055  7F 02				jg max
+ 0057  B0 06				mov al, 6
+ 0059					max:
+ 0059				endL2:
+				
+ 0059  8A D0				mov dl, al
+ 005B  B4 02				mov ah, 02         
+ 005D  CD 21			    int 21h 
+					
+ 005F  B4 4C				mov ah, 4ch
+ 0061  CD 21				int 21h
+ 0063  C3			ret	
+				end
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 23:20:0
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0004	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0200	PARA	STACK	'STACK'
+LAB32_TEXT . . . . . . . . . . .  	0064	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+A  . . . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+
+B  . . . . . . . . . . . . . . .  	L BYTE	0001	_DATA
+
+ENDL1  . . . . . . . . . . . . .  	L NEAR	003F	LAB32_TEXT
+ENDL2  . . . . . . . . . . . . .  	L NEAR	0059	LAB32_TEXT
+
+GETABSI1 . . . . . . . . . . . .  	L NEAR	003F	LAB32_TEXT
+GETABSI2 . . . . . . . . . . . .  	L NEAR	004A	LAB32_TEXT
+
+I  . . . . . . . . . . . . . . .  	L BYTE	0003	_DATA
+
+K  . . . . . . . . . . . . . . .  	L BYTE	0002	_DATA
+
+L1 . . . . . . . . . . . . . . .  	L NEAR	002A	LAB32_TEXT
+L2 . . . . . . . . . . . . . . .  	L NEAR	0053	LAB32_TEXT
+
+MAX  . . . . . . . . . . . . . .  	L NEAR	0059	LAB32_TEXT
+
+@CODE  . . . . . . . . . . . . .  	TEXT  lab32_TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  1		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab32		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     72 Source  Lines
+     72 Total   Lines
+     28 Symbols
+
+  48040 + 461267 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
