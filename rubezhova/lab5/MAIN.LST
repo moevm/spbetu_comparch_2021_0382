@@ -1,0 +1,129 @@
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 22:10:4
+                                                             Page     1-1
+
+
+ 0000				DATA SEGMENT
+ 0000  0000			    keep_cs dw 0
+ 0002  0000			    keep_ip dw 0
+ 0004  4D 65 73 73 61 67	    message DB 'Message successfully sent!$'
+       65 20 73 75 63 63	
+       65 73 73 66 75 6C	
+       6C 79 20 73 65 6E	
+       74 21 24			
+ 001F				DATA ENDS
+				
+ 0000				AStack SEGMENT STACK
+ 0000  0200[			    DW 512 DUP(?)
+	   ????			
+			 ]	
+				
+ 0400				AStack ENDS
+				
+ 0000				CODE SEGMENT
+				    ASSUME CS:CODE, DS:DATA, SS:AStack
+				 
+ 0000				SUBR_INT PROC FAR
+ 0000  52			    push dx ; remember the value of changable r
+				egister
+ 0001  50			    push ax;
+ 0002  B4 09			    mov ah, 09h
+ 0004  CD 21			    int 21h
+ 0006  58			    pop ax
+ 0007  5A			    pop dx
+				    
+ 0008  B0 20			    mov al, 20h    ;to enable interrupt with
+ 000A  E6 20			    out 20h, al    ;lower levels
+ 000C  CF			    IRET
+ 000D				SUBR_INT ENDP
+				  
+ 000D				Main PROC FAR
+ 000D  1E			    push ds
+ 000E  2B C0			    sub ax, ax
+ 0010  50			    push ax
+ 0011  B8 ---- R		    mov ax, DATA
+ 0014  8E D8			    mov ds, ax
+				    
+				    ;remember the old interrupt
+ 0016  B4 35			    MOV AH, 35H ; function of getting interrupt
+				 vector
+ 0018  B0 1C			    MOV AL, 1CH ; number of vector
+ 001A  CD 21			    INT 21H
+ 001C  89 1E 0002 R		    MOV KEEP_IP, BX ; remember offset
+ 0020  8C 06 0000 R		    MOV KEEP_CS, ES ; and segment of interrupt 
+				vector
+				    
+				    ;set a new interrupt
+ 0024  1E			    PUSH DS
+ 0025  BA 0000 R		    MOV DX, offset SUBR_INT ; offset for proced
+				ure into DX
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 22:10:4
+                                                             Page     1-2
+
+
+ 0028  B8 ---- R		    MOV AX, seg SUBR_INT ; segment of procedure
+ 002B  8E D8			    MOV DS, AX ; move to DS
+ 002D  B4 25			    MOV AH, 25H ; function of setting new vecto
+				r
+ 002F  B0 1C			    mov al, 1Ch
+ 0031  CD 21			    INT 21H ; change interrupt
+ 0033  1F			    POP DS
+				    
+				    ;call interrupt
+ 0034  BA 0004 R		    mov dx, offset message
+ 0037  CD 1C			    int 1Ch
+				
+				    
+				    ;restore the old interrupt
+ 0039  FA			    CLI
+ 003A  1E			    PUSH DS
+ 003B  8B 16 0002 R		    MOV DX, keep_ip
+ 003F  A1 0000 R		    MOV AX, keep_cs
+ 0042  8E D8			    MOV DS, AX
+ 0044  B4 25			    MOV AH, 25H
+ 0046  B0 1C			    MOV AL, 1CH
+ 0048  CD 21			    INT 21H ; restore the old interrupt vector
+ 004A  1F			    POP DS
+ 004B  FB			    STI
+				    
+ 004C  CB			    ret
+ 004D				Main ENDP
+				
+ 004D				CODE ENDS
+				     END Main
+Microsoft (R) Macro Assembler Version 5.10                  11/30/21 22:10:4
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0400	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	004D	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	001F	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+MAIN . . . . . . . . . . . . . .  	F PROC	000D	CODE	Length = 0040
+MESSAGE  . . . . . . . . . . . .  	L BYTE	0004	DATA
+
+SUBR_INT . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 000D
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  main		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     72 Source  Lines
+     72 Total   Lines
+     13 Symbols
+
+  48014 + 461293 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
