@@ -7,7 +7,7 @@ char input[81];
 char output[81];
 int main()
 {
-    cout << "Gudov Nikita 0382, task: Replace Latin letters with hexdecimal numbers" << endl;
+    cout << "Gudov Nikita 0382, task: Replace Latin letters with hexadecimal numbers" << endl;
     ofstream file;
     file.open(R"(D:\tools\lab4text.txt)");
     cin.getline(input, 80);
