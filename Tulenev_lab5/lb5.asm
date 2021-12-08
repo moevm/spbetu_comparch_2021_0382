@@ -25,6 +25,17 @@ CODE SEGMENT
 	print_cmos endp
 
 	inter PROC FAR
+		jmp int_start
+		saved_ss dw 0
+		saved_sp dw 0
+		int_stack dw 32 dup(0)
+		int_start:
+		mov saved_ss, ss
+		mov saved_sp, sp
+		mov ax, seg int_stack
+		mov ss, ax
+		mov sp, offset int_start
+		
         push    ax
 		push    bx
 		push    cx
@@ -56,6 +67,10 @@ CODE SEGMENT
         pop cx
         pop dx
         pop ds
+		
+		mov ss, saved_ss
+		mov sp, saved_sp
+		
         mov al, 20h
         out 20h, al
         iret
