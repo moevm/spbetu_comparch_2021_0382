@@ -1,0 +1,153 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 00:15:40
+                                                             Page     1-1
+
+
+ 0000				AStack SEGMENT STACK
+ 0000  0020[			    DW 32 DUP(?)
+	   ????			
+			 ]	
+				
+ 0040				AStack ENDS
+				
+ 0000				DATA SEGMENT
+ 0000  0005			    a Dw 5
+ 0002  0002			    b Dw 2
+ 0004  FFFE			    i Dw -2
+ 0006  0001			    k Dw 1
+ 0008  0000			    i1 Dw 0
+ 000A  0000			    i2 Dw 0
+ 000C  0000			    res Dw 0
+ 000E				DATA ENDS
+				
+ 0000				CODE SEGMENT
+				    ASSUME CS:CODE, DS:DATA, SS:AStack
+				
+ 0000				Main PROC FAR
+ 0000  1E			    push ds
+ 0001  2B C0			    sub ax, ax
+ 0003  50			    push ax
+ 0004  B8 ---- R		    mov ax, DATA
+ 0007  8E D8			    mov ds, ax
+				
+ 0009				f1_f2:
+ 0009  8B 1E 0004 R		    mov bx, i
+ 000D  D1 E3			    shl bx, 1; bx = 2i
+ 000F  8B 0E 0004 R		    mov cx, i
+ 0013  03 CB			    add cx, bx ; cx = 3i
+				    
+ 0015  A1 0000 R		    mov ax, a
+ 0018  3B 06 0002 R		    cmp ax, b
+ 001C  7F 0D			    jg a_more_b
+				
+ 001E				a_less_b:
+ 001E  8B D9			    mov bx, cx ; bx = cx = 3i
+ 0020  F7 D9			    neg cx ; cx = -3i
+ 0022  83 C3 04			    add bx, 4h ; bx = 3i + 4
+ 0025  83 C1 0C			    add cx, 0Ch ; cx = -3i + 12
+ 0028  EB 0D 90			    jmp f1_f2_end
+				    
+ 002B				a_more_b:
+ 002B  D1 E1			    shl cx, 1; cx = 6i
+ 002D  83 C1 08			    add cx, 8h ; cx = 6i + 8
+ 0030  F7 DB			    neg bx ; bx = -2i
+ 0032  F7 D9			    neg cx ; cx = -(6i + 8)
+ 0034  83 C3 0F			    add bx, 0Fh ; bx = -2i + 15
+				
+ 0037				f1_f2_end:
+ 0037  89 1E 0008 R		    mov i1, bx ; i1 = f1(i)
+ 003B  89 0E 000A R		    mov i2, cx ; i2 = f2(i)
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 00:15:40
+                                                             Page     1-2
+
+
+				
+ 003F				f3:
+ 003F  A1 0006 R		    mov ax, k    
+ 0042  3D 0000			    cmp ax, 0h
+ 0045  7D 1D			    jge k_more_0
+ 0047				k_less_0_1:
+ 0047  A1 0008 R		    mov ax, i1
+ 004A  3D 0000			    cmp ax, 0h
+ 004D  7D 02			    jge k_less_0_2
+ 004F  F7 D8			    neg ax
+ 0051				k_less_0_2:
+ 0051  8B 1E 000A R		    mov bx, i2
+ 0055  83 FB 00			    cmp bx, 0h
+ 0058  7D 02			    jge k_less_0_3
+ 005A  F7 DB			    neg bx
+ 005C				k_less_0_3:
+ 005C  03 C3			    add ax, bx
+ 005E  3D 0000			    cmp ax, 0h
+ 0061  EB 13 90			    jmp f3_end
+				    
+ 0064				k_more_0:
+ 0064  A1 0008 R		    mov ax, i1
+ 0067  3D 0000			    cmp ax, 0h
+ 006A  7D 02			    jge abs_i1
+ 006C  F7 D8			    neg ax
+ 006E				abs_i1:
+ 006E  3D 0006			    cmp ax, 6h
+ 0071  7D 03			    jge f3_end
+ 0073  B8 0006			    mov ax, 6h
+				
+ 0076				f3_end:
+ 0076  A3 000C R		    mov res, ax
+ 0079  CB			    ret
+ 007A				Main ENDP
+ 007A				CODE ENDS
+					END Main
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 00:15:40
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0040	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	007A	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	000E	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+A  . . . . . . . . . . . . . . .  	L WORD	0000	DATA
+ABS_I1 . . . . . . . . . . . . .  	L NEAR	006E	CODE
+A_LESS_B . . . . . . . . . . . .  	L NEAR	001E	CODE
+A_MORE_B . . . . . . . . . . . .  	L NEAR	002B	CODE
+
+B  . . . . . . . . . . . . . . .  	L WORD	0002	DATA
+
+F1_F2  . . . . . . . . . . . . .  	L NEAR	0009	CODE
+F1_F2_END  . . . . . . . . . . .  	L NEAR	0037	CODE
+F3 . . . . . . . . . . . . . . .  	L NEAR	003F	CODE
+F3_END . . . . . . . . . . . . .  	L NEAR	0076	CODE
+
+I  . . . . . . . . . . . . . . .  	L WORD	0004	DATA
+I1 . . . . . . . . . . . . . . .  	L WORD	0008	DATA
+I2 . . . . . . . . . . . . . . .  	L WORD	000A	DATA
+
+K  . . . . . . . . . . . . . . .  	L WORD	0006	DATA
+K_LESS_0_1 . . . . . . . . . . .  	L NEAR	0047	CODE
+K_LESS_0_2 . . . . . . . . . . .  	L NEAR	0051	CODE
+K_LESS_0_3 . . . . . . . . . . .  	L NEAR	005C	CODE
+K_MORE_0 . . . . . . . . . . . .  	L NEAR	0064	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 007A
+
+RES  . . . . . . . . . . . . . .  	L WORD	000C	DATA
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  LB3		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     87 Source  Lines
+     87 Total   Lines
+     27 Symbols
+
+  48008 + 459252 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
