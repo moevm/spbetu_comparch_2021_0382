@@ -1,51 +1,85 @@
-siz equ 1 ; кол-во символов в строке для ввода
-
 AStack SEGMENT STACK
- DW 12 DUP(?)
+ DW 30 DUP(?)
 AStack ENDS
 
 DATA SEGMENT
- KEEP_CS DW 0 ; для хранения сегмента
- KEEP_IP DW 0 ; и смещения прерывания
- message DB 0Dh, 0Ah,siz dup("$"), '$' ; строка для ввода-вывода
- message2 DB 0Dh, 0Ah,'End!', '$' ; строка о завершении
+        KEEP_CS DW 0 ; для хранения сегмента
+        KEEP_IP DW 0 ; и смещения вектора прерывания
 DATA ENDS
+
 
 CODE SEGMENT
  ASSUME CS:CODE, DS:DATA, SS:AStack
 
-InOut PROC FAR
-	push AX ; сохранение изменяемых регистров
+
+IntToStr PROC
+    push AX ; сохраняем регистры, что будем использовать
+    push DX
+    push BX
+    push CX
+
+    xor CX, CX ; обнуляем CX для хранения кол-ва символов
+    mov BX, 10 ; делитель для 10 с.с.
+lp:
+    xor DX,DX
+    div BX ; деление AX = (DX, AX)/BX, остаток в DX
+    add DL, '0' ; перевод цифры в символ
+    push DX ; сохраяем остаток в стек 
+    inc CX ; увеличиваем счетчик
+    test AX, AX ; проверка AX
+    jnz lp ; если частное не 0, то повторяем
+mov ah, 02h
+lp2:
+    pop DX ; достаем символ из стека
+    int 21h
+    loop lp2 ; пока cx не 0 выполняется переход
+
+    pop CX ; возвращаем значения из стека
+    pop BX
+    pop DX
+    pop AX
+    ret
+IntToStr endp
+
+
+OutInt PROC FAR
+        jmp handle
+	KEEP_SS DW 0
+	KEEP_SP DW 0
+	IStack DB 50 dup(" ")
+handle:
+    	mov KEEP_SP, SP
+	mov KEEP_SS, SS
+	mov SP, SEG IStack
+	mov SS, SP
+	mov SP, offset handle
+
+	push AX    ; сохранение изменяемых регистров
 	push CX
 	push DX
-
-	mov ax, siz
-	mov cx, ax ; помещаем число вводов символов для цикла
-	mov di, offset message ; получаем смещение на начало нашего сообщения ввода-вывода
-	add di, 2 ; смещаемся на 2 из-за двух первых символов, который делают красиво
-lp:	
-	mov ah, 01h ; функция ввода с клавиатуры (символ => al)
-	int 21h ; вызываем прерывание
-	mov [di], al ; помещаем символ в строку
-	inc di ; увеличиваем смещение на следующий символ, доступный к записи
-	loop lp ; повторяем процесс, пока не введут нужное число символов
 	
-	mov ah, 09h ; функция вывода строки
-	mov dx, offset message ; указываем смещение строки
-	int 21h ; вывели
-	mov dx, offset message2
-	int 21h ; вывели
+	mov AH, 00h
+	int 1Ah
+	
+	mov AX, CX
+	call IntToStr
+	mov AX, DX
+	call IntToStr
+	
+	pop DX
+	pop CX
+	pop AX   ; восстановление регистров
 
-	pop DX ; счастливые восстановлеваем регистры
-	pop CX  
-        pop AX
-        mov AL, 20h ; для разрешения обрабоки прерываний
-        out 20h,AL ; с более низкими уровнями, чем только что обработанное
-        iret
-InOut ENDP
+	mov SS, KEEP_SS 
+	mov SP, KEEP_SP
+
+	mov AL, 20H
+	out  20H,AL
+	iret
+OutInt ENDP
 
 
-Main PROC FAR
+Main	PROC  FAR
 	push DS
 	sub AX,AX
 	push AX
@@ -59,8 +93,8 @@ Main PROC FAR
 	mov KEEP_CS, ES ; запоминание сегмента
 
 	push DS
-	mov DX, offset InOut ; смещение для процедуры
-	mov AX, seg InOut ; сегмент процедуры
+	mov DX, offset OutInt; смещение для процедуры
+	mov AX, seg OutInt ; сегмент процедуры
 	mov DS, AX
 	mov AH, 25h ; функция установки вектора
 	mov AL, 60h ; номер вектора
@@ -82,5 +116,5 @@ Main PROC FAR
 
 	ret
 Main ENDP
-CODE ENDS	
+CODE ENDS
 	END Main

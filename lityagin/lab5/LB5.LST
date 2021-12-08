@@ -1,146 +1,168 @@
-Microsoft (R) Macro Assembler Version 5.10                  12/2/21 06:14:00
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 02:00:16
                                                              Page     1-1
 
 
- = 0001				siz equ 1 ; кол-во символов в с�
-				�роке для ввода
-				
  0000				AStack SEGMENT STACK
- 0000  000C[			 DW 12 DUP(?)
+ 0000  001E[			 DW 30 DUP(?)
 	   ????			
 			 ]	
 				
- 0018				AStack ENDS
+ 003C				AStack ENDS
 				
  0000				DATA SEGMENT
- 0000  0000			 KEEP_CS DW 0 ; для хранения сег�
-				�ента
- 0002  0000			 KEEP_IP DW 0 ; и смещения преры�
-				�ания
- 0004  0D 0A			 message DB 0Dh, 0Ah,siz dup("$"), '$' ; стр
-				ока для ввода-вывода
-       0001[			
-	   24			
-			 ]	
-       24			
- 0008  0D 0A 45 6E 64 21	 message2 DB 0Dh, 0Ah,'End!', '$' ; строк�
-				� о завершении
-       24			
- 000F				DATA ENDS
+ 0000  0000			        KEEP_CS DW 0 ; для хранения 
+				сегмента
+ 0002  0000			        KEEP_IP DW 0 ; и смещения ве
+				ктора прерывания
+ 0004				DATA ENDS
+				
 				
  0000				CODE SEGMENT
 				 ASSUME CS:CODE, DS:DATA, SS:AStack
 				
- 0000				InOut PROC FAR
- 0000  50				push AX ; сохранение изме
-				няемых регистров
- 0001  51				push CX
- 0002  52				push DX
 				
- 0003  B8 0001				mov ax, siz
- 0006  8B C8				mov cx, ax ; помещаем числ�
-				� вводов символов для цикл
-				а
- 0008  BF 0004 R			mov di, offset message ; получае
-				м смещение на начало наше�
-				�о сообщения ввода-вывода
- 000B  83 C7 02				add di, 2 ; смещаемся на 2 �
-				�з-за двух первых символов
-				, который делают красиво
- 000E				lp:	
- 000E  B4 01				mov ah, 01h ; функция ввода
-				 с клавиатуры (символ => al)
- 0010  CD 21				int 21h ; вызываем прерыв
-				ание
- 0012  88 05				mov [di], al ; помещаем сим�
-				�ол в строку
- 0014  47				inc di ; увеличиваем сме�
-				�ение на следующий символ,
-Microsoft (R) Macro Assembler Version 5.10                  12/2/21 06:14:00
+ 0000				IntToStr PROC
+ 0000  50			    push AX ; сохраняем регистр
+				ы, что будем использовать
+ 0001  52			    push DX
+ 0002  53			    push BX
+ 0003  51			    push CX
+				
+ 0004  33 C9			    xor CX, CX ; обнуляем CX для х�
+				�анения кол-ва символов
+ 0006  BB 000A			    mov BX, 10 ; делитель для 10 с.
+				с.
+ 0009				lp:
+ 0009  33 D2			    xor DX,DX
+ 000B  F7 F3			    div BX ; деление AX = (DX, AX)/BX, �
+				�статок в DX
+ 000D  80 C2 30			    add DL, '0' ; перевод цифры в 
+				символ
+ 0010  52			    push DX ; сохраяем остаток �
+				� стек 
+ 0011  41			    inc CX ; увеличиваем счетч�
+				�к
+ 0012  85 C0			    test AX, AX ; проверка AX
+ 0014  75 F3			    jnz lp ; если частное не 0, т
+				о повторяем
+ 0016  B4 02			mov ah, 02h
+ 0018				lp2:
+ 0018  5A			    pop DX ; достаем символ из �
+				�тека
+ 0019  CD 21			    int 21h
+ 001B  E2 FB			    loop lp2 ; пока cx не 0 выполн�
+				�ется переход
+				
+ 001D  59			    pop CX ; возвращаем значен�
+				�я из стека
+ 001E  5B			    pop BX
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 02:00:16
                                                              Page     1-2
 
 
-				 доступный к записи
- 0015  E2 F7				loop lp ; повторяем проце
-				сс, пока не введут нужное �
-				�исло символов
+ 001F  5A			    pop DX
+ 0020  58			    pop AX
+ 0021  C3			    ret
+ 0022				IntToStr endp
+				
+				
+ 0022				OutInt PROC FAR
+ 0022  EB 37 90			        jmp handle
+ 0025  0000				KEEP_SS DW 0
+ 0027  0000				KEEP_SP DW 0
+ 0029  0032[				IStack DB 50 dup(" ")
+	   20			
+			 ]	
+				
+ 005B				handle:
+ 005B  2E: 89 26 0027 R		    	mov KEEP_SP, SP
+ 0060  2E: 8C 16 0025 R			mov KEEP_SS, SS
+ 0065  BC ---- R			mov SP, SEG IStack
+ 0068  8E D4				mov SS, SP
+ 006A  BC 005B R			mov SP, offset handle
+				
+ 006D  50				push AX    ; сохранение из�
+				�еняемых регистров
+ 006E  51				push CX
+ 006F  52				push DX
 					
- 0017  B4 09				mov ah, 09h ; функция вывод
-				а строки
- 0019  BA 0004 R			mov dx, offset message ; указыва
-				ем смещение строки
- 001C  CD 21				int 21h ; вывели
- 001E  BA 0008 R			mov dx, offset message2
- 0021  CD 21				int 21h ; вывели
+ 0070  B4 00				mov AH, 00h
+ 0072  CD 1A				int 1Ah
+					
+ 0074  8B C1				mov AX, CX
+ 0076  E8 0000 R			call IntToStr
+ 0079  8B C2				mov AX, DX
+ 007B  E8 0000 R			call IntToStr
+					
+ 007E  5A				pop DX
+ 007F  59				pop CX
+ 0080  58				pop AX   ; восстановление
+				 регистров
 				
- 0023  5A				pop DX ; счастливые восс�
-				�ановлеваем регистры
- 0024  59				pop CX  
- 0025  58			        pop AX
- 0026  B0 20			        mov AL, 20h ; для разрешени
-				я обрабоки прерываний
- 0028  E6 20			        out 20h,AL ; с более низким
-				и уровнями, чем только что
-				 обработанное
- 002A  CF			        iret
- 002B				InOut ENDP
+ 0081  2E: 8E 16 0025 R			mov SS, KEEP_SS 
+ 0086  2E: 8B 26 0027 R			mov SP, KEEP_SP
+				
+ 008B  B0 20				mov AL, 20H
+ 008D  E6 20				out  20H,AL
+ 008F  CF				iret
+ 0090				OutInt ENDP
 				
 				
- 002B				Main PROC FAR
- 002B  1E				push DS
- 002C  2B C0				sub AX,AX
- 002E  50				push AX
- 002F  B8 ---- R			mov AX, DATA
- 0032  8E D8				mov DS, AX
-				
- 0034  B4 35				mov AH,35h ; возвращение т�
-				�кущего значения вектора �
-				�рерывания
- 0036  B0 60				mov AL,60h ; номер вектора
- 0038  CD 21				int 21h
- 003A  89 1E 0002 R			mov KEEP_IP, BX ; запоминани�
-				� смещения
- 003E  8C 06 0000 R			mov KEEP_CS, ES ; запоминани�
-				� сегмента
-				
- 0042  1E				push DS
- 0043  BA 0000 R			mov DX, offset InOut ; смещение
-				 для процедуры
- 0046  B8 ---- R			mov AX, seg InOut ; сегмент пр
-				оцедуры
- 0049  8E D8				mov DS, AX
- 004B  B4 25				mov AH, 25h ; функция устан
-				овки вектора
- 004D  B0 60				mov AL, 60h ; номер вектора
- 004F  CD 21				int 21h ; устанавливаем в
-				ектор прерывания на указа
-Microsoft (R) Macro Assembler Version 5.10                  12/2/21 06:14:00
+ 0090				Main	PROC  FAR
+ 0090  1E				push DS
+ 0091  2B C0				sub AX,AX
+ 0093  50				push AX
+ 0094  B8 ---- R			mov AX, DATA
+ 0097  8E D8				mov DS, AX
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 02:00:16
                                                              Page     1-3
 
 
+				
+ 0099  B4 35				mov AH,35h ; возвращение т�
+				�кущего значения вектора �
+				�рерывания
+ 009B  B0 60				mov AL,60h ; номер вектора
+ 009D  CD 21				int 21h
+ 009F  89 1E 0002 R			mov KEEP_IP, BX ; запоминани�
+				� смещения
+ 00A3  8C 06 0000 R			mov KEEP_CS, ES ; запоминани�
+				� сегмента
+				
+ 00A7  1E				push DS
+ 00A8  BA 0022 R			mov DX, offset OutInt; смещение
+				 для процедуры
+ 00AB  B8 ---- R			mov AX, seg OutInt ; сегмент п�
+				�оцедуры
+ 00AE  8E D8				mov DS, AX
+ 00B0  B4 25				mov AH, 25h ; функция устан
+				овки вектора
+ 00B2  B0 60				mov AL, 60h ; номер вектора
+ 00B4  CD 21				int 21h ; устанавливаем в
+				ектор прерывания на указа
 				нный адрес нового обработ
 				чика
- 0051  1F				pop DS
+ 00B6  1F				pop DS
 				
- 0052  CD 60				int 60h ; вызываем прерыв
+ 00B7  CD 60				int 60h ; вызываем прерыв
 				ание пользователя
 					
- 0054  FA				CLI
- 0055  1E				push DS
- 0056  8B 16 0002 R			mov DX, KEEP_IP
- 005A  A1 0000 R			mov AX, KEEP_CS
- 005D  8E D8				mov DS, AX
- 005F  B4 25				mov AH, 25h
- 0061  B0 60				mov AL, 60h
- 0063  CD 21				int 21h
- 0065  1F				pop DS
- 0066  FB				STI 
+ 00B9  FA				CLI
+ 00BA  1E				push DS
+ 00BB  8B 16 0002 R			mov DX, KEEP_IP
+ 00BF  A1 0000 R			mov AX, KEEP_CS
+ 00C2  8E D8				mov DS, AX
+ 00C4  B4 25				mov AH, 25h
+ 00C6  B0 60				mov AL, 60h
+ 00C8  CD 21				int 21h
+ 00CA  1F				pop DS
+ 00CB  FB				STI 
 				
- 0067  CB				ret
- 0068				Main ENDP
- 0068				CODE ENDS	
+ 00CC  CB				ret
+ 00CD				Main ENDP
+ 00CD				CODE ENDS
 					END Main
-Microsoft (R) Macro Assembler Version 5.10                  12/2/21 06:14:00
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 02:00:16
                                                              Symbols-1
 
 
@@ -148,35 +170,39 @@ Segments and Groups:
 
                 N a m e         	Length	 Align	Combine Class
 
-ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
-CODE . . . . . . . . . . . . . .  	0068	PARA	NONE	
-DATA . . . . . . . . . . . . . .  	000F	PARA	NONE	
+ASTACK . . . . . . . . . . . . .  	003C	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	00CD	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
 
 Symbols:            
 
                 N a m e         	Type	 Value	 Attr
 
-INOUT  . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 002B
+HANDLE . . . . . . . . . . . . .  	L NEAR	005B	CODE
+
+INTTOSTR . . . . . . . . . . . .  	N PROC	0000	CODE	Length = 0022
+ISTACK . . . . . . . . . . . . .  	L BYTE	0029	CODE	Length = 0032
 
 KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
 KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+KEEP_SP  . . . . . . . . . . . .  	L WORD	0027	CODE
+KEEP_SS  . . . . . . . . . . . .  	L WORD	0025	CODE
 
-LP . . . . . . . . . . . . . . .  	L NEAR	000E	CODE
+LP . . . . . . . . . . . . . . .  	L NEAR	0009	CODE
+LP2  . . . . . . . . . . . . . .  	L NEAR	0018	CODE
 
-MAIN . . . . . . . . . . . . . .  	F PROC	002B	CODE	Length = 003D
-MESSAGE  . . . . . . . . . . . .  	L BYTE	0004	DATA
-MESSAGE2 . . . . . . . . . . . .  	L BYTE	0008	DATA
+MAIN . . . . . . . . . . . . . .  	F PROC	0090	CODE	Length = 003D
 
-SIZ  . . . . . . . . . . . . . .  	NUMBER	0001	
+OUTINT . . . . . . . . . . . . .  	F PROC	0022	CODE	Length = 006E
 
 @CPU . . . . . . . . . . . . . .  	TEXT  0101h		
 @FILENAME  . . . . . . . . . . .  	TEXT  lb5		
 @VERSION . . . . . . . . . . . .  	TEXT  510		
 
 
-     86 Source  Lines
-     86 Total   Lines
-     16 Symbols
+    120 Source  Lines
+    120 Total   Lines
+     19 Symbols
 
   48030 + 459230 Bytes symbol space free
 
