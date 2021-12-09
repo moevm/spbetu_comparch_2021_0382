@@ -16,6 +16,16 @@ CODE SEGMENT
 	ASSUME CS:CODE, DS:DATA, SS:AStack
 
 SUBR_PRINT PROC FAR
+    jmp towork
+	ss_int dw 0
+	sp_int dw 0
+	mes_end_iter DB 'End iter$'
+	int_stack dw 20 DUP(?)
+
+	towork:
+	mov ss_int, ss
+	mov sp_int, sp
+
 	; store registers
 	push dx
 	push cx
@@ -131,6 +141,3 @@ Main ENDP
 
 CODE ENDS
      END Main
-
-
-
