@@ -4,10 +4,8 @@ AStack ENDS
 
 DATA SEGMENT
 	KEEP_CS DW 0 ; хранение сегмента прерывания
-	KEEP_IP DW 0 ; хранение смещения прерывания
-	n equ 3 
-	str DB 0Dh, 0Ah, n dup(0), '$' 
-	str_end DB 0Dh, 0Ah,'DONE', '$' 
+	KEEP_IP DW 0 ; хранение смещения прерывания 
+	str DB 'DONE$'
 DATA ENDS
 
 CODE SEGMENT
@@ -24,33 +22,28 @@ next:
 	mov AX, SEG MyStack
 	mov SS, SP
 	mov SP, offset next
+	push ax
+	push dx
 
-	push AX 
-	push CX
-	push DX
-	mov cx, n
-	mov di, offset str
-	add di, 2
-input:	
-	mov ah, 01h
-	int 21h
-	mov [di], al 
-	add di, 1 
-	loop input
+input:
+	in al, 60h 
+	cmp al, 1fh  
+	jne input
 
+print:   
 	mov ah, 09h ;вывод строки
-	mov dx, offset str  
+	mov dx, offset str 
 	int 21h
-	mov dx, offset str_end
-	int 21h 
-	pop AX
-	pop DX  
-	pop CX  
+final:
+   	pop ax
+	pop dx
+	pop cx
 	mov SS, KEEP_SS 
 	mov SP, KEEP_SP 
         mov AL, 20h 
         out 20h,AL 
         iret
+	
 myINT ENDP
 
 Main PROC FAR
@@ -61,7 +54,7 @@ Main PROC FAR
 	mov DS, AX
 
 	MOV AH,35h ; функция получения вектора
-	MOV AL,17h ; номер вектора
+	MOV AL,16h ; номер вектора
 	INT 21h
 	MOV KEEP_IP, BX ; запоминание смещения
 	MOV KEEP_CS, ES ; и сегмента
@@ -71,24 +64,19 @@ Main PROC FAR
 	MOV AX, seg myINT ; сегмент процедуры
 	MOV DS, AX ; помещаем в DS
 	MOV AH, 25h ; функция установки вектора
-	MOV AL, 17h ; номер вектора
+	MOV AL, 16h ; номер вектора
 	INT 21h ; меняем прерывание
 	POP DS
-run:
-	mov ah, 0h
-	int 16h 
-	cmp al,'s' 
-	jne run
 
-	int 17h ;!!!!
-	
+	int 16h
+
 	CLI
    	PUSH DS
   	MOV DX, KEEP_IP
   	MOV AX, KEEP_CS
   	MOV DS, AX
   	MOV AH, 25H
-  	MOV AL, 17h
+  	MOV AL, 16h
   	INT 21H  ;восстанавливаем вектор
   	POP DS
 	STI
