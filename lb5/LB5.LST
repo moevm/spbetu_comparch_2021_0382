@@ -1,0 +1,142 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/13/21 02:18:2
+                                                             Page     1-1
+
+
+				ASSUME CS:CODE, DS:DATA, SS:STACK
+				
+ 0000				STACK SEGMENT STACK
+ 0000  0200[				DW 512 DUP(?)
+	   ????			
+			 ]	
+				
+ 0400				STACK ENDS
+				
+ 0000				DATA SEGMENT
+ 0000  0000				KEEP_CS DW 0
+ 0002  0000			    KEEP_IP DW 0
+				
+ 0004				DATA ENDS
+				
+ 0000				CODE SEGMENT
+ 0000					MY_SUBR_INT PROC FAR
+ 0000  50			        push AX
+ 0001  51					push CX
+ 0002					input:
+ 0002  B0 B6					mov AL, 10110110b
+ 0004  E6 43					out 43h, AL
+ 0006  8B C3					mov AX, BX
+ 0008  E6 42					out 42h, AL
+ 000A  8A C4					mov AL, AH
+ 000C  E6 42					out 42h, AL
+ 000E  E4 61					in AL, 61h
+ 0010  8A E0					mov AH, AL
+ 0012  0C 03					or AL, 3
+ 0014  E6 61					out 61h, AL
+ 0016  2B C9					sub CX, CX
+ 0018  E2 FE					forloop: loop forloop
+ 001A  8A C4					mov AL, AH
+ 001C  E6 61					out 61h, AL
+ 001E  B0 20			        mov AL, 20h
+ 0020  E6 20			        out 20h, AL
+ 0022  B4 00					mov AH, 0h
+ 0024  CD 16					int 16h
+ 0026  3C 48					cmp AL, 'H'
+ 0028  74 13					je higher_sound
+ 002A  3C 4C					cmp AL, 'L'
+ 002C  74 03					je low_sound
+ 002E  EB 19 90					jmp exit
+ 0031						low_sound:
+ 0031  81 FB 2710					cmp BX, 10000
+ 0035  7D CB						jge input
+ 0037  81 C3 03E8					add BX, 1000
+ 003B  EB C5						jmp input
+ 003D						higher_sound:
+ 003D  81 FB 03E8					cmp BX, 1000
+ 0041  7E BF						jle input
+ 0043  81 EB 03E8					sub BX, 1000
+ 0047  EB B9						jmp input
+ 0049						exit:
+Microsoft (R) Macro Assembler Version 5.10                  12/13/21 02:18:2
+                                                             Page     1-2
+
+
+ 0049  58						pop AX
+ 004A  59						pop CX
+ 004B  CF						iret
+ 004C					MY_SUBR_INT  ENDP
+					
+ 004C					MAIN PROC FAR		
+ 004C  B8 3560					mov AX, 3560h
+ 004F  CD 21					int 21h
+ 0051  89 1E 0002 R				mov KEEP_IP, BX
+ 0055  8C 06 0000 R				mov KEEP_CS, ES
+ 0059  BB 1388					mov BX, 5000
+						
+ 005C  1E					push DS
+ 005D  BA 0000 R				mov dx, offset MY_SUBR_INT 
+ 0060  B8 ---- R				mov AX, seg MY_SUBR_INT
+ 0063  8E D8					mov DS, AX
+ 0065  B8 2560					mov AX, 2560h
+ 0068  CD 21					int 21h
+ 006A  1F					pop DS
+ 006B  CD 60					int 60h
+ 006D  FA						cli
+ 006E  1E						push DS
+ 006F  8B 16 0002 R					mov DX, KEEP_IP
+ 0073  A1 0000 R					mov AX, KEEP_CS
+ 0076  8E D8						mov DS, AX
+ 0078  B4 25						mov AH, 25h
+ 007A  B0 60						mov AL, 60h
+ 007C  CD 21						int 21h
+ 007E  1F						pop	DS
+ 007F  FB						sti
+ 0080  B4 4C						mov AH, 4ch
+ 0082  CD 21						int 21h
+ 0084					MAIN ENDP
+ 0084				CODE ENDS
+				END MAIN 
+Microsoft (R) Macro Assembler Version 5.10                  12/13/21 02:18:2
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+CODE . . . . . . . . . . . . . .  	0084	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
+STACK  . . . . . . . . . . . . .  	0400	PARA	STACK	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+EXIT . . . . . . . . . . . . . .  	L NEAR	0049	CODE
+
+FORLOOP  . . . . . . . . . . . .  	L NEAR	0018	CODE
+
+HIGHER_SOUND . . . . . . . . . .  	L NEAR	003D	CODE
+
+INPUT  . . . . . . . . . . . . .  	L NEAR	0002	CODE
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+LOW_SOUND  . . . . . . . . . . .  	L NEAR	0031	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	004C	CODE	Length = 0038
+MY_SUBR_INT  . . . . . . . . . .  	F PROC	0000	CODE	Length = 004C
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lb5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     86 Source  Lines
+     86 Total   Lines
+     17 Symbols
+
+  48034 + 461273 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
