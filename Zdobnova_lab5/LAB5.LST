@@ -1,4 +1,4 @@
-Microsoft (R) Macro Assembler Version 5.10                  12/6/21 00:40:11
+Microsoft (R) Macro Assembler Version 5.10                  12/16/21 01:57:0
                                                              Page     1-1
 
 
@@ -56,7 +56,7 @@
 				�правляющий регистр В
  0832  E6 70			    out 70h,al               ; порт 70h - �
 				�ндекс CMOS
-Microsoft (R) Macro Assembler Version 5.10                  12/6/21 00:40:11
+Microsoft (R) Macro Assembler Version 5.10                  12/16/21 01:57:0
                                                              Page     1-2
 
 
@@ -114,7 +114,7 @@
  0875  CD 29			    int 29h                  ; вывести �
 				�а экран
  0877  58			    pop ax
-Microsoft (R) Macro Assembler Version 5.10                  12/6/21 00:40:11
+Microsoft (R) Macro Assembler Version 5.10                  12/16/21 01:57:0
                                                              Page     1-3
 
 
@@ -151,41 +151,35 @@
  089D  B0 08			    mov al, 08h ;номер вектора
  089F  CD 21			    int 21h
  08A1  1F			    pop ds
-				
- 08A2				    B_loop:
- 08A2  B4 00			    mov ah, 00h
- 08A4  CD 16			    int 16h
- 08A6  3C 1B			    cmp al, 27
- 08A8  74 02			    je Restoring_the_vector
- 08AA  E2 F6			    loop B_loop
-				
- 08AC				    Restoring_the_vector:  ;восстанав�
+					
+ 08A2  CD 08				int 8h
+ 08A4				    Restoring_the_vector:  ;восстанав�
 				�иваем старый вектор прер�
 				�вания
- 08AC  FA			    cli
- 08AD  1E			    push ds
- 08AE  8B 16 0002 R		    mov dx, KEEP_IP
- 08B2  A1 0000 R		    mov ax, KEEP_CS
- 08B5  8E D8			    mov ds, ax
- 08B7  B4 25			    mov ah, 25h ;функция установ�
+ 08A4  FA			    cli
+ 08A5  1E			    push ds
+ 08A6  8B 16 0002 R		    mov dx, KEEP_IP
+ 08AA  A1 0000 R		    mov ax, KEEP_CS
+ 08AD  8E D8			    mov ds, ax
+ 08AF  B4 25			    mov ah, 25h ;функция установ�
 				�и вектора
- 08B9  B0 08			    mov al, 08h ;номер вектора
- 08BB  CD 21			    int 21h
- 08BD  1F			    pop ds
-Microsoft (R) Macro Assembler Version 5.10                  12/6/21 00:40:11
+ 08B1  B0 08			    mov al, 08h ;номер вектора
+ 08B3  CD 21			    int 21h
+ 08B5  1F			    pop ds
+ 08B6  FB			    sti
+				
+ 08B7  B4 4C			    mov ah, 4ch ;завершение прог�
+				�аммы
+ 08B9  CD 21			    int 21h
+				
+Microsoft (R) Macro Assembler Version 5.10                  12/16/21 01:57:0
                                                              Page     1-4
 
 
- 08BE  FB			    sti
-				
- 08BF  B4 4C			    mov ah, 4ch ;завершение прог�
-				�аммы
- 08C1  CD 21			    int 21h
-				
- 08C3				MAIN ENDP
- 08C3				CODE ENDS
+ 08BB				MAIN ENDP
+ 08BB				CODE ENDS
 				END MAIN
-Microsoft (R) Macro Assembler Version 5.10                  12/6/21 00:40:11
+Microsoft (R) Macro Assembler Version 5.10                  12/16/21 01:57:0
                                                              Symbols-1
 
 
@@ -194,26 +188,24 @@ Segments and Groups:
                 N a m e         	Length	 Align	Combine Class
 
 ASTACK . . . . . . . . . . . . .  	0400	PARA	STACK	
-CODE . . . . . . . . . . . . . .  	08C3	PARA	NONE	
+CODE . . . . . . . . . . . . . .  	08BB	PARA	NONE	
 DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
 
 Symbols:            
 
                 N a m e         	Type	 Value	 Attr
 
-B_LOOP . . . . . . . . . . . . .  	L NEAR	08A2	CODE
-
 H_START  . . . . . . . . . . . .  	L NEAR	0809	CODE
 
 KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
 KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
 
-MAIN . . . . . . . . . . . . . .  	F PROC	087F	CODE	Length = 0044
+MAIN . . . . . . . . . . . . . .  	F PROC	087F	CODE	Length = 003C
 MY_STACK . . . . . . . . . . . .  	L WORD	0009	CODE	Length = 0400
 
 PRINT_CMOS . . . . . . . . . . .  	N PROC	086B	CODE	Length = 0014
 
-RESTORING_THE_VECTOR . . . . . .  	L NEAR	08AC	CODE
+RESTORING_THE_VECTOR . . . . . .  	L NEAR	08A4	CODE
 
 SAVE_AX  . . . . . . . . . . . .  	L WORD	0007	CODE
 SAVE_SP  . . . . . . . . . . . .  	L WORD	0005	CODE
@@ -225,9 +217,9 @@ SUBR_INT . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 086B
 @VERSION . . . . . . . . . . . .  	TEXT  510		
 
 
-    129 Source  Lines
-    129 Total   Lines
-     20 Symbols
+    123 Source  Lines
+    123 Total   Lines
+     19 Symbols
 
   48018 + 457192 Bytes symbol space free
 

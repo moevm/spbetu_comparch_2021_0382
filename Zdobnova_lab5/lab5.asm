@@ -101,14 +101,8 @@ MAIN PROC FAR
     mov al, 08h ;номер вектора
     int 21h
     pop ds
-
-    B_loop:
-    mov ah, 00h
-    int 16h
-    cmp al, 27
-    je Restoring_the_vector
-    loop B_loop
-
+	
+	int 8h
     Restoring_the_vector:  ;восстанавливаем старый вектор прерывания
     cli
     push ds
