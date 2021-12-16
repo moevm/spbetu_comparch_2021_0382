@@ -6,6 +6,7 @@ intervals_distribution PROC C intervals: dword, n_int: dword, units: dword, n_un
 	mov esi, intervals
 	mov edi, res
 	mov ecx, n_int
+	sub ecx, 1h
 start_loop:
 	mov eax, [esi]
 	add esi, 4h
@@ -30,6 +31,10 @@ start_loop:
 	pop ecx
 
 	loop start_loop
+	
+	mov esi, units
+	mov ebx, [esi + eax*4]
+	mov [edi], ebx
 ret
 intervals_distribution ENDP
 END
