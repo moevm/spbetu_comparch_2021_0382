@@ -1,0 +1,150 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 16:33:1
+                                                             Page     1-1
+
+
+				ASSUME CS:CODE, DS:DATA, SS:STACK
+				
+ 0000				STACK SEGMENT STACK
+ 0000  0400[				DW 1024 DUP(?)
+	   ????			
+			 ]	
+				
+ 0800				STACK ENDS
+				
+ 0000				DATA SEGMENT
+ 0000  0000				KEEP_CS DW 0
+ 0002  0000			    KEEP_IP DW 0
+				
+ 0004				DATA ENDS
+				
+ 0000				CODE SEGMENT
+ 0000					inter PROC FAR
+ 0000  50			        push ax
+ 0001  51					push cx
+				        
+ 0002  B0 B6					mov al, 10110110b
+ 0004  E6 43					out 43h, al
+						
+ 0006  8B C3					mov ax, bx
+ 0008  E6 42					out 42h, al
+ 000A  8A C4					mov al, ah
+ 000C  E6 42					out 42h, al
+						
+ 000E  E4 61					in al, 61h
+ 0010  8A E0					mov ah, al
+ 0012  0C 03					or al, 3
+ 0014  E6 61					out 61h, al
+						
+ 0016  2B C9					sub cx, cx
+ 0018  E2 FE					l: loop l
+							
+ 001A  8A C4					mov al, ah
+ 001C  E6 61					out 61h, al
+						
+ 001E  58			        pop ax
+ 001F  59					pop cx
+ 0020  B0 20			        mov al, 20h
+ 0022  E6 20			        out 20h, al
+ 0024  CF			        iret
+ 0025					inter  ENDP
+ 0025					main PROC FAR		
+ 0025  B4 35					mov ah, 35h
+ 0027  B0 60					mov al, 60h
+ 0029  CD 21					int 21h
+ 002B  89 1E 0002 R				mov KEEP_IP, bx
+ 002F  8C 06 0000 R				mov KEEP_CS, es
+						
+ 0033  BB 1194					mov bx, 4500
+						
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 16:33:1
+                                                             Page     1-2
+
+
+ 0036  1E					push ds
+ 0037  BA 0000 R				mov dx, offset inter 
+ 003A  B8 ---- R				mov ax, seg inter
+ 003D  8E D8					mov ds, ax
+ 003F  B4 25					mov ah, 25h
+ 0041  B0 60					mov al, 60h
+ 0043  CD 21					int 21h
+ 0045  1F					pop ds
+						
+ 0046  EB 19 90					jmp readKey
+ 0049						incFrec:
+ 0049  83 FB 64						cmp bx, 100
+ 004C  7E 13						jle readKey
+ 004E  83 EB 64						sub bx, 100
+ 0051  CD 60						int 60h
+ 0053  EB 0C 90						jmp readKey
+ 0056						decFrec:
+ 0056  81 FB 2710					cmp bx, 10000
+ 005A  7D 05						jge readKey
+ 005C  83 C3 64						add bx, 100
+ 005F  CD 60						int 60h
+ 0061						readKey:
+ 0061  B4 00						mov ah, 0h
+ 0063  CD 16						int 16h
+ 0065  3C 61						cmp al, 'a'
+ 0067  74 ED						je decFrec
+ 0069  3C 73						cmp al, 's'
+ 006B  74 DC						je incFrec
+						
+ 006D  FA					cli
+ 006E  1E					push ds
+ 006F  8B 16 0002 R				mov dx, KEEP_IP
+ 0073  A1 0000 R				mov ax, KEEP_CS
+ 0076  8E D8					mov ds, ax
+ 0078  B4 25					mov ah, 25h
+ 007A  B0 60					mov al, 60h
+ 007C  CD 21					int 21h
+ 007E  1F					pop	ds
+ 007F  FB					sti
+						
+ 0080  B4 4C					mov ah, 4ch
+ 0082  CD 21					int 21h
+ 0084					main ENDP
+ 0084				CODE ENDS
+				END main
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 16:33:1
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+CODE . . . . . . . . . . . . . .  	0084	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
+STACK  . . . . . . . . . . . . .  	0800	PARA	STACK	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+DECFREC  . . . . . . . . . . . .  	L NEAR	0056	CODE
+
+INCFREC  . . . . . . . . . . . .  	L NEAR	0049	CODE
+INTER  . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0025
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+L  . . . . . . . . . . . . . . .  	L NEAR	0018	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0025	CODE	Length = 005F
+
+READKEY  . . . . . . . . . . . .  	L NEAR	0061	CODE
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  LB5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     96 Source  Lines
+     96 Total   Lines
+     16 Symbols
+
+  48030 + 461277 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
