@@ -24,11 +24,6 @@ add ebx, 1
 jmp Start
 
 Act:
-		push ecx
-		mov ecx, max
-		cmp eax, ecx 
-		pop ecx
-		je final
 	push edi
 	push eax
 	mov edi, distr
@@ -39,8 +34,13 @@ Act:
 	mov [esi+4*ebx], eax
 	pop eax
 	pop edi
+		push ecx
+		mov ecx, max
+		cmp eax, ecx 
+		pop ecx
+		je final
 	add ecx, 1 
-	add eax, 1 
+	add eax, 1
 	jmp Start
 
 final:
