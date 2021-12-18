@@ -1,0 +1,202 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 14:34:3
+                                                             Page     1-1
+
+
+ 0000				DATA SEGMENT
+ 0000  0000			    keep_cs dw 0 
+ 0002  0000			    keep_ip dw 0 
+ 0004				DATA ENDS
+				
+ 0000				AStack SEGMENT STACK
+ 0000  0200[			    DW 512 DUP(?)
+	   ????			
+			 ]	
+				
+ 0400				AStack ENDS
+				
+ 0000				CODE SEGMENT
+				    ASSUME CS:CODE, DS:DATA, SS:AStack
+				
+				.186                          ;for shr al, 4
+				
+ 0000				show_time PROC NEAR
+ 0000  E6 70			    out 70H, AL               ;send AL in CMOS'
+				s port
+ 0002  E4 71			    in AL, 71H                ;read data
+ 0004  50			    push AX
+ 0005  C0 E8 04			    shr AL, 4                 ;select the highe
+				st 4 bits
+ 0008  04 30			    add AL, '0'               ;add ASCII-code 0
+ 000A  CD 29			    int 29H                   ;show symbol
+ 000C  58			    pop AX
+ 000D  24 0F			    and AL, 0FH               ;select the lower
+				 four bits
+ 000F  04 30			    add AL, 30H                ;add ASCII-code 
+				0
+ 0011  CD 29			    int 29H                   ;show symbol
+ 0013  C3			    ret
+ 0014				show_time ENDP
+				
+ 0014				SUBR_INT PROC FAR
+ 0014  E9 041D R		jmp start
+ 0017  0000			KEEP_SS DW 0
+ 0019  0000			KEEP_SP DW 0
+ 001B  0000			KEEP_AX DW 0
+ 001D  0200[			KEEP_STACK DW 512 DUP(?)
+	   ????			
+			 ]	
+				
+				
+ 041D				start:
+ 041D  2E: 89 26 0019 R		mov KEEP_SP, SP
+ 0422  2E: A3 001B R		mov KEEP_AX, AX
+ 0426  2E: 8C 16 0017 R		mov KEEP_SS, SS
+ 042B  BC 041D R		mov SP, OFFSET start
+ 042E  B8 ---- R		mov AX, SEG KEEP_STACK
+ 0431  8E D0			mov SS, AX
+ 0433  2E: A1 001B R		mov AX, KEEP_AX
+				
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 14:34:3
+                                                             Page     1-2
+
+
+ 0437  50			push AX                       ;save registers
+ 0438  1E			push DS
+				
+ 0439  B8 ---- R		mov AX, SEG SUBR_INT
+ 043C  8E D8			mov DS, AX
+ 043E  2E: A1 001B R		mov AX, KEEP_AX
+				
+ 0442  B4 29			mov AH, 29H 
+				    
+ 0444  B0 0B				mov AL, 0BH               ;control regi
+				ster B for CMOS
+ 0446  E6 70			    out 70H, AL               ;port 70H is port
+				 of CMOS
+ 0448  E4 71			    in AL, 71H                ;port 71H is data
+				 of CMOS
+ 044A  24 FB			    and AL, 11111011b         ;for BCD
+ 044C  E6 71			    out 71H, AL               ;write back
+ 044E  B0 04				mov AL, 4                 ;CMOS 04h is 
+				hour
+ 0450  E8 0000 R		    call show_time	
+				
+ 0453  B0 3A			    mov AL, ':'               ;separator
+ 0455  CD 29			    int 29H
+ 0457  B0 02			    mov AL, 2                 ;CMOS 02h is minu
+				tes
+				
+ 0459  E8 0000 R		    call show_time
+				
+ 045C  B0 3A			    mov AL, ':'               ;separator
+ 045E  CD 29			    int 29H
+ 0460  B0 00			    mov AL, 0                 ;CMOS 00h is seco
+				nd
+				
+ 0462  E8 0000 R		    call show_time
+				
+ 0465  B0 20				mov AL, ' '               ;separator
+ 0467  CD 29			    int 29H
+				
+ 0469  1F			pop DS
+ 046A  58			pop AX                        ;recover register
+				s
+ 046B  2E: 8B 26 0019 R		mov SP, KEEP_SP
+ 0470  2E: A1 0017 R		mov AX, KEEP_SS
+ 0474  8E D0			mov SS, AX
+ 0476  2E: A1 001B R		mov AX, KEEP_AX
+ 047A  B0 20			mov AL, 20H
+ 047C  E6 20			out 20H, AL
+ 047E  CF			IRET
+ 047F				SUBR_INT ENDP
+				
+				
+ 047F				Main PROC FAR
+ 047F  1E			push DS
+ 0480  2B C0			    sub AX, AX
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 14:34:3
+                                                             Page     1-3
+
+
+ 0482  50			    push AX
+ 0483  B8 ---- R		    mov AX, DATA
+ 0486  8E D8			    mov DS, AX
+				
+ 0488  B4 35			    mov AH, 35h
+ 048A  B0 60			    mov AL, 60h
+ 048C  CD 15			    int 21
+ 048E  89 1E 0002 R		    mov keep_ip, BX
+ 0492  8C 06 0000 R		    mov keep_cs, ES
+				
+				
+ 0496  1E			    push DS
+ 0497  BA 0014 R		    mov DX, OFFSET SUBR_INT 
+ 049A  B8 ---- R		    mov AX, SEG SUBR_INT 
+ 049D  8E D8			    mov DS, AX 
+ 049F  B4 25			    mov AH, 25H 
+ 04A1  B0 60			    mov AL, 60H 
+ 04A3  CD 21			    int 21H 
+ 04A5  1F			    pop DS
+				
+				
+ 04A6  CD 60			    int 60h                    ;call user's int
+				erupt
+				
+ 04A8  FA			    CLI
+ 04A9  1E			    push DS
+ 04AA  8B 16 0002 R		    mov DX, KEEP_IP
+ 04AE  A1 0000 R		    mov AX, KEEP_CS
+ 04B1  8E D8			    mov DS, AX
+ 04B3  B4 25			    mov AH, 25H
+ 04B5  B0 60			    mov AL, 60h
+ 04B7  CD 21			    int 21H 
+ 04B9  1F			    pop DS
+ 04BA  FB			    STI
+				
+ 04BB  CB			    ret
+				
+ 04BC				Main ENDP
+ 04BC				CODE ENDS
+				END Main
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 14:34:3
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0400	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	04BC	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+KEEP_AX  . . . . . . . . . . . .  	L WORD	001B	CODE
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+KEEP_SP  . . . . . . . . . . . .  	L WORD	0019	CODE
+KEEP_SS  . . . . . . . . . . . .  	L WORD	0017	CODE
+KEEP_STACK . . . . . . . . . . .  	L WORD	001D	CODE	Length = 0200
+
+MAIN . . . . . . . . . . . . . .  	F PROC	047F	CODE	Length = 003D
+
+SHOW_TIME  . . . . . . . . . . .  	N PROC	0000	CODE	Length = 0014
+START  . . . . . . . . . . . . .  	L NEAR	041D	CODE
+SUBR_INT . . . . . . . . . . . .  	F PROC	0014	CODE	Length = 046B
+
+@CPU . . . . . . . . . . . . . .  	TEXT  259		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    130 Source  Lines
+    130 Total   Lines
+     18 Symbols
+
+  48018 + 459242 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
