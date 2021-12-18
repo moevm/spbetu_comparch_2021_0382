@@ -63,6 +63,9 @@ int main() {
 	mt19937 gen(rd());
 	double mean = (Xmax + Xmin)/2;
 	double stddev = (Xmax - Xmin)/4;
+	if (!stddev) {
+		stddev = 1;
+	}
 	normal_distribution<double> dis(mean, stddev);
 
 	int* arr = new int[len_arr];
