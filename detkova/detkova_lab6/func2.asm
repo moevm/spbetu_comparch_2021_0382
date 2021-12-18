@@ -13,50 +13,54 @@ mov edi, res2
 mov ecx, n
 
 lp:
-    mov eax, [esi]
-    mov ebx, [esi + 4]
+    mov eax, [esi] ; левая граница интервала
+    mov ebx, [esi + 4] ; правая граница
 
-    cmp eax, x_min
-    ja l2
-    mov eax, 0
+    cmp eax, x_min ; если eax >= x_min
+    jge l2
+    mov eax, 0 ; иначе, eax = 0, начало массива res1
+
+    sub ebx, x_min ; если длина интервала = 0
+    jle l4
+    jmp l5
 
     l2:
-        sub ebx, eax
-        cmp ebx, 0
-        jz l1
+        sub ebx, eax ; количество элементов в интервале
+        cmp ebx, 0 ; если длина интервала = 0
+        je l4
+        sub eax, x_min ; индекс первого элемента из текущего интервала в массиве res1
 
+    l5:
+        push esi 
         push ecx
-        push esi
 
-        mov ecx, ebx
-        sub eax, x_min
-        mov esi, res1
-        mov ebx, 0
+        mov ecx, ebx ; количество элементов из res1 по которым нужно пройти
+        mov esi, res1 ; массив
+        mov ebx, 0 ; считает сумму подходящих элементов
 
-    lp2:
+    lp2: ; цикл, считает сумму элементов, входящих в интервал
        add ebx, [esi + 4*eax]
        inc eax
        loop lp2
 
-    pop esi
     pop ecx
 
-    mov [edi], ebx
 
-    cmp ecx, 2
-    je l3
-    jmp l1
+    cmp ecx, 1 ; если обрабатывали не последний элемент, то записываем сумму в массив результат
+    jne l3
+    add ebx, [esi + 4*eax] ; иначе, скобка последнего интервала вадратная, поэтому добавляем еще элемент
 
     l3:
-        add edi, 4
-        add esi, 4
-        mov eax, [esi]
-        mov ebx, x_max
-        mov ecx, 1
-        jmp l2
+
+        mov [edi], ebx ; записываем результат
+        pop esi
+        jmp l1
+
+    l4:
+        mov [edi], ebx ; записываем 0, если интервал пустой
 
     l1:
-        add edi, 4
+        add edi, 4 ; двигаемся к след. элементам массивов
         add esi, 4
     
     loop lp
