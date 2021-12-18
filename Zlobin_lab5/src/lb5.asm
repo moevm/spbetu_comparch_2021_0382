@@ -12,6 +12,18 @@ DATA ENDS
 
 CODE SEGMENT
 	inter PROC FAR
+jmp h_start
+  save_ss dw 0000h
+  save_sp dw 0000h
+  ind_stack dw 512 DUP(?)
+  h_start:
+
+
+    mov save_ss, SS
+    mov save_sp, sp
+    mov sp, seg ind_stack
+    mov ss, sp
+    mov sp, OFFSET h_start
         push ax
 		push cx
         
@@ -34,10 +46,12 @@ CODE SEGMENT
 		mov al, ah
 		out 61h, al
 		
-        pop ax
-		pop cx
-        mov al, 20h
-        out 20h, al
+        POP AX ; восстановление регистров
+  POP CX
+    mov ss, save_ss
+  mov sp, save_sp
+  MOV AL, 20H
+  OUT 20H,AL
         iret
 	inter  ENDP
 	main PROC FAR		
