@@ -31,7 +31,7 @@ int main(){
     int NInt;
     cout << "Введите количество интервалов разбиения:\n";
     cin >> NInt;
-    if (NInt <= 0 || NInt > 24 || NInt >= (Xmax - Xmin)) {
+    if (NInt <= 0 || NInt > 24 || NInt >= abs(Xmax - Xmin)) {
         cout << "Количество интервалов не может быть меньше или равно 0, больше 24, больше или ";
         cout << "равно, чем разность между максимальным и минимальным значением в диапазоне псевднослучайных чисел\n";
         return 1;
@@ -42,7 +42,7 @@ int main(){
     for (int i = 0; i < NInt; i++) {
         cin >> LGrInt[i];
         
-        if (LGrInt[i] < Xmin || LGrInt[i] > Xmax) {
+        if (LGrInt[i] > Xmax) {
             cout << "Недопустимое значение интервала\n";
             return 1;
         }
@@ -53,6 +53,8 @@ int main(){
         }
     }
     LGrInt[NInt] = Xmax;
+    //if (LGrInt[0] < Xmin)
+      //  LGrInt[0] = Xmin;
 
 
     int* X = new int[NumRamDat];
@@ -83,7 +85,7 @@ int main(){
 
     func2(res_1, LGrInt, res_2, Xmax, Xmin, NInt);
     ofstream out;
-    out.open("C:\\Result.txt");
+    out.open("Result.txt");
     cout << "Распределение чисел по интервалам:\n";
     out << "Распределение чисел по интервалам:\n";
     cout << "Номер интервала Левая граница Количество чисел\n";
