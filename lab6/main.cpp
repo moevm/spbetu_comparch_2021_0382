@@ -39,8 +39,7 @@ int main() {
 			return 0;
 		}
 	}
-	cout << "Enter the right border of last interval:" << endl;
-	cin >> intervals[N_int];
+	intervals[N_int] = X_max;
 
 	for (int i = 0; i < N_int + 1; i++) {
 		for (int j = i; j < N_int + 1; j++) {
