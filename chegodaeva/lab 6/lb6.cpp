@@ -1,4 +1,4 @@
-﻿#include <iostream>
+#include <iostream>
 #include <random>
 #include <stdio.h>
 #include <fstream>
@@ -35,10 +35,12 @@ int main() {
 		cout << "Слишком большое число интервалов" << endl;
 		return 0;
 	}
+
 	if (NInt < abs(D)) {
 		cout << "Количество должно быть больше-ровно разности диапазона!!!" << endl;
 		return 0;
 	}
+
 	int* interv = new int[NInt+1];
 	int* result_modul2 = new int[n];
 	cout << "Введите " << NInt << " левых границ интервалов: " << endl;
@@ -57,7 +59,9 @@ int main() {
 
 	random_device rd;
 	mt19937 gen(rd());
-	normal_distribution<> conc_gen((min + max) / 2, abs(max - min) / 4);
+	float l = float(max + min) / 2;
+	float r = float(max - min) / 4;
+	normal_distribution<float> conc_gen(l, r);
 
 	interv[NInt] = max + 1;
 	int* result_module1 = new int[abs(D) + 1];
