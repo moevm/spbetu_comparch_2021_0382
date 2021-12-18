@@ -16,6 +16,10 @@ lp:
     mov eax, [esi]
     mov ebx, [esi + 4]
 
+    cmp eax, x_min
+    ja l2
+    mov eax, 0
+
     l2:
         sub ebx, eax
         cmp ebx, 0
