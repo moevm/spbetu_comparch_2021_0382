@@ -16,28 +16,28 @@ start:
 	mov ebx, [esi+4]
 
 	cmp ebx, X_min
-	jle m1
+	jle mark1
 
 	cmp eax, X_min
-	jge m2
+	jge mark2
 
 	sub ebx, X_min
 	inc ebx
 	mov eax, 0 
-	jmp m4
+	jmp mark4
 
-	m2:
+	mark2:
 		sub ebx, eax
 		inc ebx
 		sub eax, X_min
 
-	m4:
-	push esi
-	push ecx
+	mark4:
+		push esi
+		push ecx
 
-	mov esi, pre_answer
-	mov ecx, ebx
-	mov ebx, 0
+		mov esi, pre_answer
+		mov ecx, ebx
+		mov ebx, 0
 	start2:
 		add ebx, [esi+4*eax]
 		inc eax
@@ -48,20 +48,20 @@ start:
 
 	pop ecx
 	pop esi
-	jmp m3
-	m1:
+	jmp mark3
+	mark1:
 		mov ebx, 0
 		cmp ecx, 1
-		jne m5
+		jne mark5
 		mov esi, pre_answer
 		mov eax, 0
 		add ebx, [esi+4*eax]
-		m5:
+		mark5:
 			mov [edi], ebx
 			add edi, 4
-	m3:
-	add esi, 4
-	loop start
+	mark3:
+		add esi, 4
+		loop start
 
 pop edi
 pop esi
