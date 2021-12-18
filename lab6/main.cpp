@@ -23,7 +23,7 @@ int main() {
 		return 0;
 	}
 
-	if (N_int < (X_max - X_min)) {
+	if (N_int < abs(X_max - X_min)) {
 		cout << "Number of intervals more or equal than difference of borders!" << endl;
 		system("Pause");
 		return 0;
@@ -33,13 +33,14 @@ int main() {
 	auto intervals = new int[N_int + 1];
 	for (int i = 0; i < N_int; ++i) {
 		cin >> intervals[i];
-		if (intervals[i] > X_min) {
-			cout << "Left border" << i << " should be less or equal X_min" << endl;
-			system("Pause");
-			return 0;
-		}
 	}
 	intervals[N_int] = X_max;
+
+	if (intervals[0] > X_min) {
+		cout << "First border should be less or equal X_min" << endl;
+		system("Pause");
+		return 0;
+	}
 
 	for (int i = 0; i < N_int + 1; i++) {
 		for (int j = i; j < N_int + 1; j++) {
@@ -64,9 +65,9 @@ int main() {
 	}
 
 
-	auto pre_answer = new int[X_max - X_min + 1];
+	auto pre_answer = new int[abs(X_max - X_min) + 1];
 	auto final_answer = new int[N_int];
-	for (int i = 0; i < X_max - X_min + 1; i++) {
+	for (int i = 0; i < abs(X_max - X_min) + 1; i++) {
 		pre_answer[i] = 0;
 	}
 	for (int i = 0; i < N_int; i++) {
@@ -75,14 +76,14 @@ int main() {
 
 	pre_func(numbers, Num_Ran_Dat, pre_answer, X_min);
 	cout << "Pre answer: ";
-	for (int i = 0; i < X_max - X_min; i++) {
+	for (int i = 0; i < abs(X_max - X_min); i++) {
 		cout << i + X_min << ": " << pre_answer[i] << " | ";
 	}
 	cout << to_string(abs(X_max - X_min) + X_min) << ": " << pre_answer[abs(X_max - X_min)] << endl;
 	final_func(intervals, N_int, pre_answer, X_min, final_answer);
 
 	ofstream file("output.txt");
-	auto str = "N\tLeft borders\tAmount of numbers";
+	auto str = "N\tBorders\tThe Amount of numbers";
 	file << str << endl;
 	cout << str << endl;
 	for (int i = 0; i < N_int; i++) {
