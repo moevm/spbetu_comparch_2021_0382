@@ -12,6 +12,22 @@ DATA ENDS
 
 CODE SEGMENT
 	MY_SUBR_INT PROC FAR
+	
+	 jmp for_stack
+          SS_int dw 0
+          SP_int dw 0
+          int_Stack DW 512 DUP('0')
+          
+          for_stack:
+          
+          mov SS_int, SS
+          mov SP_int, SP
+          
+          mov SP, seg int_Stack
+          mov SS, SP
+          mov SP, offset for_stack
+	
+	
         push AX
 		push CX
 	input:
@@ -51,6 +67,8 @@ CODE SEGMENT
 		exit:
 			pop AX
 			pop CX
+			mov SS, SS_int
+            mov SP, SP_int
 			iret
 	MY_SUBR_INT  ENDP
 	
