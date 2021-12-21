@@ -2,6 +2,8 @@
 #include <random>
 #include <fstream>
 
+
+//Перемножить в dowble переменную все сгенерированные числа через мат препроцессор
 int comp(const void* a, const void* b){
 	return *(int*)a - *(int*)b;
 }
@@ -25,8 +27,9 @@ public:
 	}
 };
 
-extern "C" void first(int* numbers, int numbers_size, int* result, int xmin);
+extern "C" void first(int* numbers, int numbers_size, int* result, int xmin, double* product_res);
 extern "C" void second(int* array, int array_size, int xmin, int* intervals, int intervals_size, int* result);
+
 
 const int max_numbers_size = 16000;
 const int max_interval_size = 24;
@@ -99,10 +102,12 @@ int main() {
 	std::cout << std::endl;
 	file_result << std::endl;
 
-
-	first(numbers, numbers_size, mod_result, Xmin);
+	
+	double product_res = 0;
+	
+	first(numbers, numbers_size, mod_result, Xmin, &product_res);
 	second(mod_result, numbers_size, Xmin, intervals, intervals_size, final_result);
-
+	std::cout << product_res << std::endl;
 
 	std::cout << "Результат:" << std::endl;
 	file_result << "Результат:" << std::endl;
