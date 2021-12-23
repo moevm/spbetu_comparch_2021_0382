@@ -7,6 +7,8 @@ using namespace std;
 
 extern "C" void func1(int* X, int n, int* res1, int x_min);
 extern "C" void func2(int* res1, int* GrInt, int* res2, int x_max, int x_min, int n);
+extern "C" void module(int* res1, int* GrInt, int* res3, int x_max, int x_min, int n);
+
 
 int main(){
 
@@ -53,8 +55,6 @@ int main(){
         }
     }
     LGrInt[NInt] = Xmax;
-    //if (LGrInt[0] < Xmin)
-      //  LGrInt[0] = Xmin;
 
 
     int* X = new int[NumRamDat];
@@ -77,6 +77,10 @@ int main(){
     for (int i = 0; i < NInt; i++)
         res_2[i] = 0;
 
+    int* res_3 = new int[NInt];
+    for (int i = 0; i < NInt; i++)
+        res_3[i] = 0;
+
     func1(X, NumRamDat, res_1, Xmin);
     cout << "Распределение исходных чисел по интервалам длины 1:\n";
     for (int i = 0; i < (Xmax - Xmin + 1); i++)
@@ -84,14 +88,16 @@ int main(){
     cout << "\n";
 
     func2(res_1, LGrInt, res_2, Xmax, Xmin, NInt);
+    module(res_1, LGrInt, res_3, Xmax, Xmin, NInt);
+
     ofstream out;
     out.open("Result.txt");
     cout << "Распределение чисел по интервалам:\n";
     out << "Распределение чисел по интервалам:\n";
-    cout << "Номер интервала Левая граница Количество чисел\n";
+    cout << "Номер интервала Левая граница Количество чисел Суммы чисел в интервале\n";
     out << "Номер интервала Левая граница Количество чисел\n";
     for (int i = 0; i < NInt; i++) {
-        cout << setw(8) << i << setw(14) << LGrInt[i] << setw(16) << res_2[i] << "\n";
+        cout << setw(8) << i << setw(14) << LGrInt[i] << setw(16) << res_2[i] << setw(16) << res_3[i] << "\n";
         out << setw(8) << i << setw(14) << LGrInt[i] << setw(16) << res_2[i] << "\n";
     }
     out.close();
