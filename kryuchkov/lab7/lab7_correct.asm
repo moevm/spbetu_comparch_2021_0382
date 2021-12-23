@@ -3,9 +3,9 @@ AStack  SEGMENT STACK
 AStack  ENDS
 
 DATA    SEGMENT
-    A dd 12345678d	;делимое
-	Result dd 0	; результат деления
-	Remainder dw 0	;остаток
+    A dd 12345678d	;РґРµР»РёРјРѕРµ
+	Result dd 0	; СЂРµР·СѓР»СЊС‚Р°С‚ РґРµР»РµРЅРёСЏ
+	Remainder dw 0	;РѕСЃС‚Р°С‚РѕРє
 	res_str db 12 dup (0)
     
     hr	dw	0
@@ -17,30 +17,34 @@ CODE    SEGMENT
     ASSUME CS:CODE, DS:data, SS:AStack
 
 start PROC NEAR
-	; инмцализвция ds
+	; РёРЅРёС†Р°Р»РёР·РІС†РёСЏ ds
 	mov ax, data
 	mov ds,ax
 
+	mov ax, word ptr [A+2]
+    
+	mov dx, word ptr [A]
+    
 
-    call numb_to_string ; То что в Result переводит в строку res_str
+    call numb_to_string ; РўРѕ С‡С‚Рѕ РІ Result РїРµСЂРµРІРѕРґРёС‚ РІ СЃС‚СЂРѕРєСѓ res_str
     ; cx - length
     push cx
     push si
     call print
     
-
+	
     call str_to_num
     pop si
     pop cx
     
     mov si, offset res_str
 
-    call numb_to_string ; То что в Result переводит в строку res_str
+    call numb_to_string ; РўРѕ С‡С‚Рѕ РІ Result РїРµСЂРµРІРѕРґРёС‚ РІ СЃС‚СЂРѕРєСѓ res_str
     mov si, offset res_str
     call print2
     
 
-    mov ax, 4c00h	; выход в DOS
+    mov ax, 4c00h	; РІС‹С…РѕРґ РІ DOS
 	int 21h
 start endp 
 
@@ -49,40 +53,36 @@ numb_to_string proc NEAR
     lea si, res_str
 	mov cx,0
 
-	; делитель
+	mov word ptr [Result+2], ax
+	mov word ptr [Result], dx
+	; РґРµР»РёС‚РµР»СЊ
 	mov bx,10
 
-	mov ax, word ptr [A+2]
-    mov word ptr [Result+2], ax
-	mov ax, word ptr [A]
-    mov word ptr [Result], ax
-
-
     again:
-	; делим старшее слово
+	; РґРµР»РёРј СЃС‚Р°СЂС€РµРµ СЃР»РѕРІРѕ
 	xor dx,dx	
 	mov ax, word ptr [Result+2]
 	div bx		
 
-	mov word ptr [Result+2], ax	; сохраняем результат от деления старшего слова
-				; в dx остаток от деления
+	mov word ptr [Result+2], ax	; СЃРѕС…СЂР°РЅСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ РѕС‚ РґРµР»РµРЅРёСЏ СЃС‚Р°СЂС€РµРіРѕ СЃР»РѕРІР°
+				; РІ dx РѕСЃС‚Р°С‚РѕРє РѕС‚ РґРµР»РµРЅРёСЏ
 
-	; делим младшее слово
+	; РґРµР»РёРј РјР»Р°РґС€РµРµ СЃР»РѕРІРѕ
 	mov ax,word ptr [Result]
 	div bx 
 	
-	mov word ptr [Result], ax	; сохраняем результат от деления младшего слова
-	mov word ptr [Remainder], dx	; сохраняем остаток от деления
+	mov word ptr [Result], ax	; СЃРѕС…СЂР°РЅСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ РѕС‚ РґРµР»РµРЅРёСЏ РјР»Р°РґС€РµРіРѕ СЃР»РѕРІР°
+	mov word ptr [Remainder], dx	; СЃРѕС…СЂР°РЅСЏРµРј РѕСЃС‚Р°С‚РѕРє РѕС‚ РґРµР»РµРЅРёСЏ
 
-	; переводим цифру в символ и сохраняем 	
+	; РїРµСЂРµРІРѕРґРёРј С†РёС„СЂСѓ РІ СЃРёРјРІРѕР» Рё СЃРѕС…СЂР°РЅСЏРµРј 	
 	and dx, 0FFh	
 	add dx, '0'
 	mov [si],dl
-	inc si		; смещение следующего символа в строке
-	inc cx		; счетчик символов
+	inc si		; СЃРјРµС‰РµРЅРёРµ СЃР»РµРґСѓСЋС‰РµРіРѕ СЃРёРјРІРѕР»Р° РІ СЃС‚СЂРѕРєРµ
+	inc cx		; СЃС‡РµС‚С‡РёРє СЃРёРјРІРѕР»РѕРІ
 
 	
-	; если частное от деления не равно 0, то повторяем операцию
+	; РµСЃР»Рё С‡Р°СЃС‚РЅРѕРµ РѕС‚ РґРµР»РµРЅРёСЏ РЅРµ СЂР°РІРЅРѕ 0, С‚Рѕ РїРѕРІС‚РѕСЂСЏРµРј РѕРїРµСЂР°С†РёСЋ
 	mov ax, word ptr [Result]
 	cmp ax,0
 	jnz again
@@ -91,13 +91,13 @@ numb_to_string proc NEAR
 	jnz again
 
     ret 
-	; печать строки в обратном порядке
-	; в cx - длина строки		
+	; РїРµС‡Р°С‚СЊ СЃС‚СЂРѕРєРё РІ РѕР±СЂР°С‚РЅРѕРј РїРѕСЂСЏРґРєРµ
+	; РІ cx - РґР»РёРЅР° СЃС‚СЂРѕРєРё		
 numb_to_string ENDP
 
 str_to_num PROC NEAR
 ; hr lr
-; ax - цифра
+; ax - С†РёС„СЂР°
 ; hr = hr * 10
 ; lr = lr * 10, dx
 ; lr = lr + ax
@@ -112,7 +112,7 @@ again_r:
 	jz exit
 
 
-	sub ax, '0'	; ax - цифра
+	sub ax, '0'	; ax - С†РёС„СЂР°
 	
 	; hr = hr * 10		                                           
 	push ax
@@ -153,8 +153,8 @@ again_r:
         ret
        
 
-	; печать строки в обратном порядке
-	; в cx - длина строки	
+	; РїРµС‡Р°С‚СЊ СЃС‚СЂРѕРєРё РІ РѕР±СЂР°С‚РЅРѕРј РїРѕСЂСЏРґРєРµ
+	; РІ cx - РґР»РёРЅР° СЃС‚СЂРѕРєРё	
 str_to_num endp
 
 print proc NEAR
