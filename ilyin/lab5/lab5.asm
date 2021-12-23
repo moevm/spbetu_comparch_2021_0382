@@ -1,4 +1,3 @@
-
 ind EQU 5
 
 DATA SEGMENT
@@ -16,7 +15,7 @@ CODE SEGMENT
     ASSUME CS:CODE, DS:DATA, SS:AStack
  
 SUBR_INT PROC FAR
-    jmp next
+        jmp next
 	KEEP_SS DW 0
 	KEEP_SP DW 0
 	MyStack DW 100 dup(0)
@@ -70,14 +69,12 @@ Main PROC FAR
     
     ;remember the old interrupt
     MOV AH, 35H ; function of getting interrupt vector
-    MOV AL, 1CH ; number of vector
+    MOV AL, 08H ; number of vector
     INT 21H
     MOV KEEP_IP, BX ; remember offset
     MOV KEEP_CS, ES ; and segment of interrupt vector
-    
-    ;call interrupt
-	mov bx, 5 ; ª®«-¢® ¯®â®à  á®®¡é¥¨ï
-    int 08h
+
+    mov bx, 5
     
     ;set a new interrupt
     PUSH DS
@@ -95,17 +92,18 @@ aaaaaaa:
     
     ;restore the old interrupt
     CLI
-    PUSH DS
-    MOV DX, keep_ip
-    MOV AX, keep_cs
-    MOV DS, AX
-    MOV AH, 25H
-    MOV AL, 08H
-    INT 21H ; restore the old interrupt vector
-    POP DS
-    STI
-    
-    ret
+   	PUSH DS
+  	MOV DX, KEEP_IP
+  	MOV AX, KEEP_CS
+  	MOV DS, AX
+  	MOV AH, 25H
+  	MOV AL, 08h
+  	INT 21H  ;восстанавливаем вектор
+  	POP DS
+	STI
+	MOV AH, 4CH
+    	INT 21H
+	RET
 Main ENDP
 
 CODE ENDS
