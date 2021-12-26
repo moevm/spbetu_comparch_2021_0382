@@ -6,12 +6,8 @@
 
 using namespace std;
 
-extern "C" void func(int* nums, int numsCount, int* leftBorders, int* result);
+extern "C" void FUNC(int* array, int array_size, int* left_boarders, int intervals_size, int* result_array, int* sum_array);
 
-void output(string A, string B, string C, ofstream& file) {
-    cout << setw(6) << right << A << setw(15) << right << B << setw(17) << right << C << setw(17) << right << endl;
-    file << setw(6) << right << A << setw(15) << right << B << setw(17) << right << C << setw(17) << right << endl;
-}
 
 int main() {
     int CountNum;
@@ -41,6 +37,10 @@ int main() {
     cout << "Input left scope: ";
     int* leftScope = new int[scopeCount];
     int* result = new int[scopeCount];
+    int* sum_result = new int[scopeCount];
+    for (int i = 0; i < scopeCount; i++) {
+        sum_result[i] = 0;
+    }
 
     for (int i = 0; i < scopeCount; i++) {
         cin >> leftScope[i];
@@ -51,10 +51,10 @@ int main() {
         }
         result[i] = 0;
 
-        if (i == scopeCount - 1) leftScope[i]++;
+
     }
     cout << endl;
-
+   
     random_device rd{};
     mt19937 gen(rd());
 
@@ -76,21 +76,15 @@ int main() {
     for (int i = 0; i < CountNum; i++) cout << num[i] << " ";
     cout << endl;
 
-    func(num, CountNum, leftScope, result);
-
+    FUNC(num, CountNum, leftScope, scopeCount, result, sum_result);
     ofstream file("output.txt");
-    cout << "Result:\n";
-
-    output("Num", "Interval", "Num count", file);
-    for (int i = 0; i < scopeCount - 1; i++) {
-        output(
-            to_string(i + 1),
-            '[' + to_string(leftScope[i]) + "; " + to_string(leftScope[i + 1]) + ")",
-            to_string(result[i + 1]),
-            file
-        );
+    cout << "Num interval \tleft scope \tNum count \tNum sum" << '\n';
+    file << "Num interval \tleft scope \tNum count \tNum sum" << '\n';
+    for (int i = 0; i < scopeCount; i++) {
+        cout << "\t" << i + 1 << "\t" << leftScope[i] << "\t\t" << result[i] << "\t\t" << sum_result[i] << '\n';
+        file << "\t" << i + 1 << "\t" << leftScope[i] << "\t\t" << result[i] << "\t\t" << sum_result[i] << '\n';
     }
-
+    
     file.close();
     return 0;
 }
