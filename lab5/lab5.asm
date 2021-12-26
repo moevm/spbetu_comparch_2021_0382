@@ -15,8 +15,18 @@ User_interruption PROC FAR
     jmp start
     PITCH_OF_SOUND_HIGHT DB 01h
     PITCH_OF_SOUND_LOW  DB 0A0h
+    SS_INT dw 0
+    SP_INT dw 0
+    INT_STACK DW 512 DUP('0')
 
 start:
+    mov SS_INT ,SS
+    mov SP_INT,SP
+    
+    mov SP,SEG INT_STACK
+    mov SS,SP
+    mov SP,offset start
+    
     push AX
     push CX
     push DX
@@ -43,6 +53,8 @@ start:
     pop DX
     pop CX
     pop AX
+    mov SS,SS_INT
+    mov SP,SP_INT
 
 IRET
 User_interruption ENDP
