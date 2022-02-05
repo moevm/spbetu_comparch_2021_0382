@@ -11,10 +11,29 @@ DATA ENDS
 CODE SEGMENT
     ASSUME CS:CODE,DS:DATA, SS:AStack
 
+
+Module PROC FAR ;результат деления-в AX,постоянный остаток - в BX, делитель - в DI
+    add DX,BX
+    cmp DX,DI
+    jb finish
+    sub DX,DI
+    inc AX
+finish:
+    ret
+Module ENDP
+
+
 User_interruption PROC FAR
     jmp start
-    PITCH_OF_SOUND_HIGHT DB 01h
-    PITCH_OF_SOUND_LOW  DB 0A0h
+    HIGHT DW 0012h
+    LOW  DW  034DCh
+
+    DIVIDER DW 7000
+
+    REMAINDER_HIGHT DW 0
+    REMAINDER_LOW DW 0
+    TEMP_LOW DW 0  
+     
     SS_INT dw 0
     SP_INT dw 0
     INT_STACK DW 512 DUP('0')
@@ -28,15 +47,56 @@ start:
     mov SP,offset start
     
     push AX
+    push BX
     push CX
     push DX
+    push DI
+
+    mov DX,0
+    mov HIGHT,0012h
+    mov LOW, 034DCh
+
+    mov DI,DIVIDER
+    mov AX,HIGHT
+    DIV DI
+    mov REMAINDER_HIGHT, DX
+    mov HIGHT,AX   
+  
+    mov AX,0FFFFh
+    mov DX,0
+    DIV DI
+    mov BX,DX
+    mov CX,REMAINDER_HIGHT
+    mul CX 
+    mov DX,0
+test:
+    call Module
+    loop test
+    
+    mov BX,REMAINDER_HIGHT
+    call Module
+    mov REMAINDER_LOW,DX
+    mov TEMP_LOW,AX
+
+    mov AX,LOW
+    mov DX,0
+    DIV DI
+    mov BX,REMAINDER_LOW
+    call Module
+    add AX,TEMP_LOW
+    adc HIGHT,0000
+    mov LOW,AX
+    mov REMAINDER_LOW,DX
+
+
+
 
     mov AL,10110110b
     out 43h,AL
-    mov AL, BYTE PTR PITCH_OF_SOUND_LOW
-    out 42h,AL
-    mov AL, BYTE PTR PITCH_OF_SOUND_HIGHT
-    out 42h,AL
+    mov ax,LOW
+    out 42h, al
+    mov al, ah
+    out 42h, al
 
     in AL,61h
     or AL,00000011b
@@ -49,9 +109,11 @@ start:
     in AL,61h
     and AL,11111100b
     out 61h,AL
-
+   
+    pop DI
     pop DX
     pop CX
+    pop BX
     pop AX
     mov SS,SS_INT
     mov SP,SP_INT
@@ -82,6 +144,7 @@ Main PROC FAR
     int 21h
     pop DS
 begin:
+
     mov ah, 0
     int 16h
     cmp al, 3
@@ -107,3 +170,4 @@ Main ENDP
 
 CODE ENDS
     END Main
+
