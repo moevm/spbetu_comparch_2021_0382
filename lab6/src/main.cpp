@@ -89,12 +89,12 @@ int main(){
     }
 
 
-    cout<<right_border<<'\n';
+
     int* res_1=new int[max-min+1];
     for(int i=0;i<max-min+1;i++)
         res_1[i]=0;
     func1(numbers,len,res_1,min);
-    cout<<right_border<<'\n';
+
     cout<<"Distribution over intervals of length 1: \n";
     for(int i=0;i<max-min+1;i++){
         cout<<i+min<<':'<<res_1[i]<<' ';
