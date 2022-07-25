@@ -1,0 +1,172 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 19:49:1
+                                                             Page     1-1
+
+
+				ASSUME CS:CODE, DS:DATA, SS:STACK
+				
+ 0000				STACK SEGMENT STACK
+ 0000  0200[				DW 512 DUP(?)
+	   ????			
+			 ]	
+				
+ 0400				STACK ENDS
+				
+ 0000				DATA SEGMENT
+ 0000  0000				KEEP_CS DW 0
+ 0002  0000			    KEEP_IP DW 0
+				
+ 0004				DATA ENDS
+				
+ 0000				CODE SEGMENT
+ 0000					MY_SUBR_INT PROC FAR
+					
+ 0000  E9 0407 R			 jmp for_stack
+ 0003  0000			          SS_int dw 0
+ 0005  0000			          SP_int dw 0
+ 0007  0200[			          int_Stack DW 512 DUP('0')
+	   0030			
+			 ]	
+				
+				          
+ 0407				          for_stack:
+				          
+ 0407  2E: 8C 16 0003 R		          mov SS_int, SS
+ 040C  2E: 89 26 0005 R		          mov SP_int, SP
+				          
+ 0411  BC ---- R		          mov SP, seg int_Stack
+ 0414  8E D4			          mov SS, SP
+ 0416  BC 0407 R		          mov SP, offset for_stack
+					
+					
+ 0419  50			        push AX
+ 041A  51					push CX
+ 041B					input:
+ 041B  B0 B6					mov AL, 10110110b
+ 041D  E6 43					out 43h, AL
+ 041F  8B C3					mov AX, BX
+ 0421  E6 42					out 42h, AL
+ 0423  8A C4					mov AL, AH
+ 0425  E6 42					out 42h, AL
+ 0427  E4 61					in AL, 61h
+ 0429  8A E0					mov AH, AL
+ 042B  0C 03					or AL, 3
+ 042D  E6 61					out 61h, AL
+ 042F  2B C9					sub CX, CX
+ 0431  E2 FE					forloop: loop forloop
+ 0433  8A C4					mov AL, AH
+ 0435  E6 61					out 61h, AL
+ 0437  B0 20			        mov AL, 20h
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 19:49:1
+                                                             Page     1-2
+
+
+ 0439  E6 20			        out 20h, AL
+ 043B  B4 00					mov AH, 0h
+ 043D  CD 16					int 16h
+ 043F  3C 48					cmp AL, 'H'
+ 0441  74 13					je higher_sound
+ 0443  3C 4C					cmp AL, 'L'
+ 0445  74 03					je low_sound
+ 0447  EB 19 90					jmp exit
+ 044A						low_sound:
+ 044A  81 FB 2710					cmp BX, 10000
+ 044E  7D CB						jge input
+ 0450  81 C3 03E8					add BX, 1000
+ 0454  EB C5						jmp input
+ 0456						higher_sound:
+ 0456  81 FB 03E8					cmp BX, 1000
+ 045A  7E BF						jle input
+ 045C  81 EB 03E8					sub BX, 1000
+ 0460  EB B9						jmp input
+ 0462						exit:
+ 0462  58						pop AX
+ 0463  59						pop CX
+ 0464  2E: 8E 16 0003 R					mov SS, SS_int
+ 0469  2E: 8B 26 0005 R		            mov SP, SP_int
+ 046E  CF						iret
+ 046F					MY_SUBR_INT  ENDP
+					
+ 046F					MAIN PROC FAR		
+ 046F  B8 3560					mov AX, 3560h
+ 0472  CD 21					int 21h
+ 0474  89 1E 0002 R				mov KEEP_IP, BX
+ 0478  8C 06 0000 R				mov KEEP_CS, ES
+ 047C  BB 1388					mov BX, 5000
+						
+ 047F  1E					push DS
+ 0480  BA 0000 R				mov dx, offset MY_SUBR_INT 
+ 0483  B8 ---- R				mov AX, seg MY_SUBR_INT
+ 0486  8E D8					mov DS, AX
+ 0488  B8 2560					mov AX, 2560h
+ 048B  CD 21					int 21h
+ 048D  1F					pop DS
+ 048E  CD 60					int 60h
+ 0490  FA						cli
+ 0491  1E						push DS
+ 0492  8B 16 0002 R					mov DX, KEEP_IP
+ 0496  A1 0000 R					mov AX, KEEP_CS
+ 0499  8E D8						mov DS, AX
+ 049B  B4 25						mov AH, 25h
+ 049D  B0 60						mov AL, 60h
+ 049F  CD 21						int 21h
+ 04A1  1F						pop	DS
+ 04A2  FB						sti
+ 04A3  B4 4C						mov AH, 4ch
+ 04A5  CD 21						int 21h
+ 04A7					MAIN ENDP
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 19:49:1
+                                                             Page     1-3
+
+
+ 04A7				CODE ENDS
+				END MAIN 
+Microsoft (R) Macro Assembler Version 5.10                  12/18/21 19:49:1
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+CODE . . . . . . . . . . . . . .  	04A7	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
+STACK  . . . . . . . . . . . . .  	0400	PARA	STACK	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+EXIT . . . . . . . . . . . . . .  	L NEAR	0462	CODE
+
+FORLOOP  . . . . . . . . . . . .  	L NEAR	0431	CODE
+FOR_STACK  . . . . . . . . . . .  	L NEAR	0407	CODE
+
+HIGHER_SOUND . . . . . . . . . .  	L NEAR	0456	CODE
+
+INPUT  . . . . . . . . . . . . .  	L NEAR	041B	CODE
+INT_STACK  . . . . . . . . . . .  	L WORD	0007	CODE	Length = 0200
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+LOW_SOUND  . . . . . . . . . . .  	L NEAR	044A	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	046F	CODE	Length = 0038
+MY_SUBR_INT  . . . . . . . . . .  	F PROC	0000	CODE	Length = 046F
+
+SP_INT . . . . . . . . . . . . .  	L WORD	0005	CODE
+SS_INT . . . . . . . . . . . . .  	L WORD	0003	CODE
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lb5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    104 Source  Lines
+    104 Total   Lines
+     21 Symbols
+
+  48030 + 461277 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
