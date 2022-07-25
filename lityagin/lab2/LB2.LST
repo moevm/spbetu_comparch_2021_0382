@@ -1,0 +1,155 @@
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 03:51:50
+                                                             Page     1-1
+
+
+ = 0024				EOL EQU '$'
+ = 0002				ind EQU 2
+ = 01F4				n1 EQU 500
+ =-0032				n2 EQU -50
+				; Стек программы
+ 0000				AStack SEGMENT STACK
+ 0000  000C[			 DW 12 DUP(?)
+	   ????			
+			 ]	
+				
+ 0018				AStack ENDS
+				; Данные программы
+ 0000				DATA SEGMENT
+				; Директивы описания данн�
+				�х
+ 0000  0000			mem1 DW 0
+ 0002  0000			mem2 DW 0
+ 0004  0000			mem3 DW 0
+ 0006  01 02 03 04 08 07	vec1 DB 1,2,3,4,8,7,6,5
+       06 05			
+ 000E  F6 EC 0A 14 E2 D8	vec2 DB -10,-20,10,20,-30,-40,30,40
+       1E 28			
+ 0016  01 02 03 04 FC FD	matr DB 1,2,3,4,-4,-3,-2,-1,5,6,7,8,-8,-7,-6,-5
+       FE FF 05 06 07 08	
+       F8 F9 FA FB		
+ 0026				DATA ENDS
+				; Код программы
+ 0000				CODE SEGMENT
+				 ASSUME CS:CODE, DS:DATA, SS:AStack
+				; Головная процедура
+ 0000				Main PROC FAR
+ 0000  1E				push DS
+ 0001  2B C0				sub AX,AX
+ 0003  50				push AX
+ 0004  B8 ---- R			mov AX,DATA
+ 0007  8E D8				mov DS,AX
+				; ПРОВЕРКА РЕЖИМОВ АДРЕСА�
+				�ИИ НА УРОВНЕ СМЕЩЕНИЙ
+				; Регистровая адресация
+ 0009  B8 01F4				mov ax,n1
+ 000C  8B C8				mov cx,ax
+ 000E  B3 24				mov bl,EOL	
+ 0010  B7 CE				mov bh,n2
+				; Прямая адресация	
+ 0012  C7 06 0002 R FFCE		mov mem2,n2
+ 0018  BB 0006 R			mov bx,OFFSET vec1
+ 001B  A3 0000 R			mov mem1,ax
+				; Косвенная адресация
+ 001E  8A 07				mov al,[bx]
+					mov mem3,[bx]
+lb2.ASM(41): error A2052: Improper operand type
+				; Базированная адресация
+ 0020  8A 47 03				mov al,[bx]+3
+ 0023  8B 4F 03				mov cx,3[bx]
+				; Индексная адресация
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 03:51:50
+                                                             Page     1-2
+
+
+ 0026  BF 0002				mov di,ind
+ 0029  8A 85 000E R			mov al,vec2[di]
+ 002D  8B 8D 000E R			mov cx,vec2[di]
+lb2.ASM(48): warning A4031: Operand types must match
+				; Адресация с базирование�
+				� и индексированием
+ 0031  BB 0003				mov bx,3
+ 0034  8A 81 0016 R			mov al,matr[bx][di]
+ 0038  8B 89 0016 R			mov cx,matr[bx][di]
+lb2.ASM(52): warning A4031: Operand types must match
+ 003C  8B 85 0022 R			mov ax,matr[bx*4][di]
+lb2.ASM(53): error A2055: Illegal register value
+				; ПРОВЕРКА РЕЖИМОВ АДРЕСА�
+				�ИИ С УЧЕТОМ СЕГМЕНТОВ
+				; Переопределение сегмент
+				а
+				; ------ вариант 1
+ 0040  B8 ---- R			mov ax, SEG vec2
+ 0043  8E C0				mov es, ax
+ 0045  26: 8B 07			mov ax, es:[bx]
+ 0048  B8 0000				mov ax, 0
+				; ------ вариант 2
+ 004B  8E C0				mov es, ax
+ 004D  1E				push ds
+ 004E  07				pop es
+ 004F  26: 8B 4F FF			mov cx, es:[bx-1]
+ 0053  91				xchg cx,ax
+				; ------ вариант 3
+ 0054  BF 0002				mov di,ind
+ 0057  26: 89 01			mov es:[bx+di],ax
+				; ------ вариант 4
+ 005A  8B EC				mov bp,sp
+ 005C  3E: 8B 86 0016 R			mov ax,matr[bp+bx]
+lb2.ASM(72): error A2046: Multiple base registers
+ 0061  3E: 8B 83 0016 R			mov ax,matr[bp+di+si]
+lb2.ASM(73): error A2047: Multiple index registers
+				; Использование сегмента �
+				�тека
+ 0066  FF 36 0000 R			push mem1
+ 006A  FF 36 0002 R			push mem2
+ 006E  8B EC				mov bp,sp
+ 0070  8B 56 02				mov dx,[bp]+2
+ 0073  CA 0002				ret 2
+ 0076				Main ENDP
+lb2.ASM(80): error A2006: Phase error between passes
+ 0076				CODE ENDS	
+					END Main
+Microsoft (R) Macro Assembler Version 5.10                  10/7/21 03:51:50
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0018	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	0076	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0026	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+EOL  . . . . . . . . . . . . . .  	NUMBER	0024	
+
+IND  . . . . . . . . . . . . . .  	NUMBER	0002	
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0076
+MATR . . . . . . . . . . . . . .  	L BYTE	0016	DATA
+MEM1 . . . . . . . . . . . . . .  	L WORD	0000	DATA
+MEM2 . . . . . . . . . . . . . .  	L WORD	0002	DATA
+MEM3 . . . . . . . . . . . . . .  	L WORD	0004	DATA
+
+N1 . . . . . . . . . . . . . . .  	NUMBER	01F4	
+N2 . . . . . . . . . . . . . . .  	NUMBER	-0032	
+
+VEC1 . . . . . . . . . . . . . .  	L BYTE	0006	DATA
+VEC2 . . . . . . . . . . . . . .  	L BYTE	000E	DATA
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lb2		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     82 Source  Lines
+     82 Total   Lines
+     19 Symbols
+
+  47842 + 459418 Bytes symbol space free
+
+      2 Warning Errors
+      5 Severe  Errors
