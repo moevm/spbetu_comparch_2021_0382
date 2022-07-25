@@ -1,0 +1,160 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/12/21 13:14:2
+                                                             Page     1-1
+
+
+ 0000				AStack SEGMENT STACK
+ 0000  0200[			 DW 512 DUP(0)
+	   0000			
+			 ]	
+				
+ 0400				AStack ENDS
+				
+ 0000				DATA SEGMENT
+ 0000  0000				KEEP_CS DW 0 ; С…СЂР°РЅРµРЅРёРµ СЃРµРіР
+				јРµРЅС‚Р° РїСЂРµСЂС‹РІР°РЅРёСЏ
+ 0002  0000				KEEP_IP DW 0 ; С…СЂР°РЅРµРЅРёРµ СЃРјРµС
+				‰РµРЅРёСЏ РїСЂРµСЂС‹РІР°РЅРёСЏ 
+ 0004  44 4F 4E 45 24			str DB 'DONE$'
+ 0009				DATA ENDS
+				
+ 0000				CODE SEGMENT
+				 ASSUME CS:CODE, DS:DATA, SS:AStack
+				
+ 0000				myINT PROC FAR
+ 0000  E9 00CF R			jmp next
+ 0003  0000				KEEP_SS DW 0
+ 0005  0000				KEEP_SP DW 0
+ 0007  0064[				MyStack DW 100 dup(0)
+	   0000			
+			 ]	
+				
+ 00CF				next:	
+ 00CF  2E: 89 26 0005 R			mov KEEP_SP, SP
+ 00D4  2E: 8C 16 0003 R			mov KEEP_SS, SS
+ 00D9  B8 ---- R			mov AX, SEG MyStack
+ 00DC  8E D4				mov SS, SP
+ 00DE  BC 00CF R			mov SP, offset next
+ 00E1  50				push ax
+ 00E2  52				push dx
+				
+ 00E3				input:
+ 00E3  E4 60				in al, 60h 
+ 00E5  3C 1F				cmp al, 1fh  
+ 00E7  75 FA				jne input
+				
+ 00E9				print:   
+ 00E9  B4 09				mov ah, 09h ;РІС‹РІРѕРґ СЃС‚СЂРѕРєРё
+ 00EB  BA 0004 R			mov dx, offset str 
+ 00EE  CD 21				int 21h
+ 00F0				final:
+ 00F0  58			   	pop ax
+ 00F1  5A				pop dx
+ 00F2  59				pop cx
+ 00F3  2E: 8E 16 0003 R			mov SS, KEEP_SS 
+ 00F8  2E: 8B 26 0005 R			mov SP, KEEP_SP 
+ 00FD  B0 20			        mov AL, 20h 
+ 00FF  E6 20			        out 20h,AL 
+ 0101  CF			        iret
+					
+Microsoft (R) Macro Assembler Version 5.10                  12/12/21 13:14:2
+                                                             Page     1-2
+
+
+ 0102				myINT ENDP
+				
+ 0102				Main PROC FAR
+ 0102  1E				push DS
+ 0103  2B C0				sub AX,AX
+ 0105  50				push AX
+ 0106  B8 ---- R			mov AX, DATA
+ 0109  8E D8				mov DS, AX
+				
+ 010B  B4 35				MOV AH,35h ; С„СѓРЅРєС†РёСЏ РїРѕР»СѓС‡Р
+				µРЅРёСЏ РІРµРєС‚РѕСЂР°
+ 010D  B0 16				MOV AL,16h ; РЅРѕРјРµСЂ РІРµРєС‚РѕСЂР°
+ 010F  CD 21				INT 21h
+ 0111  89 1E 0002 R			MOV KEEP_IP, BX ; Р·Р°РїРѕРјРёРЅР°РЅРёР
+				µ СЃРјРµС‰РµРЅРёСЏ
+ 0115  8C 06 0000 R			MOV KEEP_CS, ES ; Рё СЃРµРіРјРµРЅС‚Р°
+				
+ 0119  1E				PUSH DS
+ 011A  BA 0000 R			MOV DX, offset myINT ; СЃРјРµС‰РµРЅРёРµ
+				 РґР»СЏ РїСЂРѕС†РµРґСѓСЂС‹ РІ DX
+ 011D  B8 ---- R			MOV AX, seg myINT ; СЃРµРіРјРµРЅС‚ РїСЂ
+				РѕС†РµРґСѓСЂС‹
+ 0120  8E D8				MOV DS, AX ; РїРѕРјРµС‰Р°РµРј РІ DS
+ 0122  B4 25				MOV AH, 25h ; С„СѓРЅРєС†РёСЏ СѓСЃС‚Р°РЅ
+				РѕРІРєРё РІРµРєС‚РѕСЂР°
+ 0124  B0 16				MOV AL, 16h ; РЅРѕРјРµСЂ РІРµРєС‚РѕСЂР°
+ 0126  CD 21				INT 21h ; РјРµРЅСЏРµРј РїСЂРµСЂС‹РІР°РЅ
+				РёРµ
+ 0128  1F				POP DS
+				
+ 0129  CD 16				int 16h
+				
+ 012B  FA				CLI
+ 012C  1E			   	PUSH DS
+ 012D  8B 16 0002 R		  	MOV DX, KEEP_IP
+ 0131  A1 0000 R		  	MOV AX, KEEP_CS
+ 0134  8E D8			  	MOV DS, AX
+ 0136  B4 25			  	MOV AH, 25H
+ 0138  B0 16			  	MOV AL, 16h
+ 013A  CD 21			  	INT 21H  ;РІРѕСЃСЃС‚Р°РЅР°РІР»РёРІР°РµР
+				ј РІРµРєС‚РѕСЂ
+ 013C  1F			  	POP DS
+ 013D  FB				STI
+ 013E  B4 4C				MOV AH, 4CH
+ 0140  CD 21			    	INT 21H
+ 0142  CB				RET
+ 0143				MAIN ENDP
+ 0143				CODE ENDS	
+					END MAIN 
+Microsoft (R) Macro Assembler Version 5.10                  12/12/21 13:14:2
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0400	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	0143	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0009	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+FINAL  . . . . . . . . . . . . .  	L NEAR	00F0	CODE
+
+INPUT  . . . . . . . . . . . . .  	L NEAR	00E3	CODE
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+KEEP_SP  . . . . . . . . . . . .  	L WORD	0005	CODE
+KEEP_SS  . . . . . . . . . . . .  	L WORD	0003	CODE
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0102	CODE	Length = 0041
+MYINT  . . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0102
+MYSTACK  . . . . . . . . . . . .  	L WORD	0007	CODE	Length = 0064
+
+NEXT . . . . . . . . . . . . . .  	L NEAR	00CF	CODE
+
+PRINT  . . . . . . . . . . . . .  	L NEAR	00E9	CODE
+
+STR  . . . . . . . . . . . . . .  	L BYTE	0004	DATA
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lb		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     88 Source  Lines
+     88 Total   Lines
+     20 Symbols
+
+  48030 + 461277 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
+
