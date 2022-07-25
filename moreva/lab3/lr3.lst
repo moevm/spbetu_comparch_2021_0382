@@ -1,0 +1,129 @@
+Microsoft (R) Macro Assembler Version 5.10                  10/20/21 25:23:1
+                                                             Page     1-1
+
+
+				.MODEL MEDIUM
+				
+				.STACK 200h
+				
+				.data
+ 0000  04			a db 4
+ 0001  03			b db 3
+ 0002  02			k db 2
+ 0003  01			i db 1
+				
+				.CODE
+ 0000  B8 ---- R		mov ax,@data
+ 0003  8E D8			mov ds, ax
+ 0005  33 C0			xor ax, ax
+				
+ 0007  8A 0E 0000 R		mov cl, a
+ 000B  A0 0003 R		mov al, i  ; al=i
+ 000E  8A 1E 0003 R		mov bl, i  ; al=i
+				
+ 0012  3A 0E 0001 R		cmp cl, b 
+ 0016  7F 16			JG  L1
+ 0018  D0 E0				sal al, 1  ; al=2*i
+ 001A  02 06 0003 R			add al, i  ; al=3*i
+ 001E  D0 E0				sal al, 1  ; al=6*i
+ 0020  2C 0A				sub al, 10 ; al=6*i-10
+					
+ 0022  80 C3 02				add bl, 2   ; bl=i+2
+ 0025  8A CB				mov cl, bl
+ 0027  02 DB				add bl, bl  ; bl=2*(i+2)
+ 0029  02 D9				add bl, cl  ; bl=3*(i+2)
+ 002B  EB 16 90			jmp endL1
+				
+ 002E				L1:
+ 002E  D0 E0				sal al, 1 ; al=2*i
+ 0030  D0 E0				sal al, 1 ; al=4*i
+ 0032  04 03				add al, 3 ; al=4*i+3
+ 0034  F6 D8				neg al    ; al=-(4*i+3)
+					
+ 0036  D0 E3				sal bl, 1  ; bl=2*i
+ 0038  02 1E 0003 R			add bl, i  ; bl=3*i
+ 003C  D0 E3				sal bl, 1  ; bl=6*i
+ 003E  80 EB 04				sub bl, 4  ; bl=6*i-4
+ 0041  F6 DB				neg bl     ; bl=-(6*i-4)
+ 0043				endL1:
+				
+ 0043				getabsI1:
+ 0043  F6 D8				neg al
+ 0045  78 FC			js getabsI1	   ; al=|i1|
+				
+ 0047				getabsI2:
+ 0047  F6 DB				neg bl
+ 0049  78 FC			js getabsI2	   ; bl=|i2|
+					
+				
+Microsoft (R) Macro Assembler Version 5.10                  10/20/21 25:23:1
+                                                             Page     1-2
+
+
+ 004B  80 3E 0002 R 00		cmp k, 0
+ 0050  7D 05			jge L2
+ 0052  02 C3				add al,bl
+ 0054  EB 07 90				jmp endL2
+ 0057				L2:
+ 0057  3C 06				cmp al, 6
+ 0059  7F 02				jg max
+ 005B  B0 06				mov al, 6
+ 005D					max:
+ 005D				endL2:
+				
+ 005D  B4 4C				mov ah, 4ch
+ 005F  CD 21				int 21h
+ 0061  C3			ret	
+				end
+Microsoft (R) Macro Assembler Version 5.10                  10/20/21 25:23:1
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+DGROUP . . . . . . . . . . . . .  	GROUP
+  _DATA  . . . . . . . . . . . .  	0004	WORD	PUBLIC	'DATA'
+  STACK  . . . . . . . . . . . .  	0200	PARA	STACK	'STACK'
+LAB3_TEXT  . . . . . . . . . . .  	0062	WORD	PUBLIC	'CODE'
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+A  . . . . . . . . . . . . . . .  	L BYTE	0000	_DATA
+
+B  . . . . . . . . . . . . . . .  	L BYTE	0001	_DATA
+
+ENDL1  . . . . . . . . . . . . .  	L NEAR	0043	LAB3_TEXT
+ENDL2  . . . . . . . . . . . . .  	L NEAR	005D	LAB3_TEXT
+
+GETABSI1 . . . . . . . . . . . .  	L NEAR	0043	LAB3_TEXT
+GETABSI2 . . . . . . . . . . . .  	L NEAR	0047	LAB3_TEXT
+
+I  . . . . . . . . . . . . . . .  	L BYTE	0003	_DATA
+
+K  . . . . . . . . . . . . . . .  	L BYTE	0002	_DATA
+
+L1 . . . . . . . . . . . . . . .  	L NEAR	002E	LAB3_TEXT
+L2 . . . . . . . . . . . . . . .  	L NEAR	0057	LAB3_TEXT
+
+MAX  . . . . . . . . . . . . . .  	L NEAR	005D	LAB3_TEXT
+
+@CODE  . . . . . . . . . . . . .  	TEXT  lab3_TEXT		
+@CODESIZE  . . . . . . . . . . .  	TEXT  1		
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@DATASIZE  . . . . . . . . . . .  	TEXT  0		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab3		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+     69 Source  Lines
+     69 Total   Lines
+     28 Symbols
+
+  48042 + 461265 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
