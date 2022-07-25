@@ -1,0 +1,230 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 05:07:54
+                                                             Page     1-1
+
+
+       1 = 0005				messnumber EQU 5
+       2				
+       3				
+       4 0000				DATA SEGMENT
+       5 0000  0000				keep_cs dw 0
+       6 0002  0000				keep_ip dw 0
+       7 0004  48 65 6C 6C 6F 20		message DB 'Hello $'
+       8       24			
+       9 000B				DATA ENDS
+      10				
+      11 0000				AStack SEGMENT STACK
+      12 0000  0200[				DW 512 DUP(?)
+      13	   ????			
+      14			 ]	
+      15				
+      16 0400				AStack ENDS
+      17				
+      18				
+      19 0000				CODE SEGMENT
+      20					ASSUME CS:CODE, DS:DATA, SS:ASt
+					ack
+      21				
+      22 0000				SUBR_PRINT PROC FAR
+      23 0000  EB 36 90			    jmp towork
+      24 0003  0000				ss_int dw 0
+      25 0005  0000				sp_int dw 0
+      26 0007  45 6E 64 20 69 74		mes_end_iter DB 'End iter$'
+      27       65 72 24			
+      28 0010  0014[				int_stack dw 20 DUP(?)
+      29	   ????			
+      30			 ]	
+      31				
+      32				
+      33 0038					towork:
+      34 0038  2E: 8C 16 0003 R			mov ss_int, ss
+      35 003D  2E: 89 26 0005 R			mov sp_int, sp
+      36				
+      37					; store registers
+      38 0042  52				push dx
+      39 0043  51				push cx
+      40 0044  53				push bx
+      41 0045  50				push ax
+      42 0046  50				push ax
+      43				
+      44 0047  B0 00				mov al, 0
+      45				
+      46 0049					print_message:
+      47 0049  B4 09					mov ah, 9
+      48 004B  BA 0004 R				mov dx, offset message
+      49 004E  CD 21					int 21h
+      50				
+      51 0050					set_delay:
+      52 0050  59					pop cx
+      53 0051  FE C9					dec cl
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 05:07:54
+                                                             Page     1-2
+
+
+      54 0053  74 25					jz complete
+      55 0055  51					push cx
+      56				
+      57 0056  3C 00					cmp al, 0
+      58 0058  74 05					je first
+      59				
+      60 005A  D0 E0					shl al, 1
+      61 005C  EB 03 90					jmp start
+      62				
+      63 005F					first:
+      64 005F  04 01					add al, 1
+      65				
+      66 0061					start:
+      67 0061  8A D8					mov bl, al
+      68 0063  B4 2C					mov  ah, 2ch
+      69 0065  CD 21					int  21h 
+      70 0067  8A FE					mov bh, dh	
+						
+      71				
+      72 0069					delaying:   
+      73 0069  90					nop
+      74 006A  B4 2C					mov  ah, 2ch
+      75 006C  CD 21					int  21h 
+      76 006E  3A F7					cmp dh, bh
+      77 0070  74 F7					je delaying
+      78				
+      79 0072  8A FE					mov  bh, dh      
+      80 0074  FE CB					dec  bl   
+      81 0076  75 F1					jnz  delaying  
+      82 0078  EB CF					jmp print_message
+      83				
+      84				
+      85 007A					complete:
+      86						; restore registers
+      87 007A  58					pop ax
+      88 007B  5B					pop bx
+      89 007C  59					pop cx
+      90 007D  5A					pop dx
+      91				
+      92 007E  B0 20					mov al, 20h
+      93 0080  E6 20					out 20h, al
+      94 0082  CF				iret
+      95				
+      96 0083				SUBR_PRINT ENDP
+      97				
+      98				
+      99 0083				Main PROC FAR
+     100 0083  1E			    push DS
+     101 0084  2B C0			    sub ax, ax
+     102 0086  50			    push ax
+     103 0087  B8 ---- R		    mov ax, DATA
+     104 008A  8E D8			    mov ds, ax
+     105				
+     106 008C  B8 3523			    mov ax, 3523h
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 05:07:54
+                                                             Page     1-3
+
+
+     107 008F  CD 21			    int 21h
+     108 0091  8C 06 0000 R		    mov keep_cs, es
+     109 0095  89 1E 0002 R		    mov keep_ip, bx
+     110				
+     111 0099  1E			    push ds
+     112 009A  BA 0000 R		    mov dx, offset SUBR_PRINT
+     113 009D  B8 ---- R		    mov ax, seg SUBR_PRINT
+     114 00A0  8E D8			    mov ds, ax
+     115 00A2  B8 2523			    mov ax, 2523h
+     116 00A5  CD 21			    int 21h
+     117 00A7  1F			    pop ds
+     118				 
+     119				
+     120 00A8					begin:
+     121 00A8  B4 00					mov ah,0
+     122 00AA  CD 16					int 16h
+     123 00AC  3C 71					cmp al, 'q'
+     124 00AE  74 0A					je quit
+     125 00B0  3C 03					cmp al,3
+     126 00B2  75 F4					jnz begin
+     127				
+     128 00B4  B0 05					mov al, messnumber ; se
+					t number of messages		
+						
+     129 00B6  CD 23					int 23h	
+     130 00B8  EB EE					jmp begin
+     131				
+     132 00BA					quit:
+     133				
+     134				
+     135				
+     136				
+     137 00BA  FA			    cli
+     138 00BB  1E			    push ds
+     139 00BC  8B 16 0002 R		    mov dx, keep_ip
+     140 00C0  A1 0000 R		    mov ax, keep_cs
+     141 00C3  8E D8			    mov ds, ax
+     142 00C5  B8 2523			    mov ax, 2523h
+     143 00C8  CD 21			    int 21h
+     144 00CA  1F			    pop ds
+     145 00CB  FB			    sti
+     146				    
+     147 00CC  CB			    ret
+     148 00CD				Main ENDP
+     149				
+     150 00CD				CODE ENDS
+     151				     END Main
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 05:07:54
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0400	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	00CD	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	000B	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+BEGIN  . . . . . . . . . . . . .  	L NEAR	00A8	CODE
+
+COMPLETE . . . . . . . . . . . .  	L NEAR	007A	CODE
+
+DELAYING . . . . . . . . . . . .  	L NEAR	0069	CODE
+
+FIRST  . . . . . . . . . . . . .  	L NEAR	005F	CODE
+
+INT_STACK  . . . . . . . . . . .  	L WORD	0010	CODE	Length = 0014
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0083	CODE	Length = 004A
+MESSAGE  . . . . . . . . . . . .  	L BYTE	0004	DATA
+MESSNUMBER . . . . . . . . . . .  	NUMBER	0005	
+MES_END_ITER . . . . . . . . . .  	L BYTE	0007	CODE
+
+PRINT_MESSAGE  . . . . . . . . .  	L NEAR	0049	CODE
+
+QUIT . . . . . . . . . . . . . .  	L NEAR	00BA	CODE
+
+SET_DELAY  . . . . . . . . . . .  	L NEAR	0050	CODE
+SP_INT . . . . . . . . . . . . .  	L WORD	0005	CODE
+SS_INT . . . . . . . . . . . . .  	L WORD	0003	CODE
+START  . . . . . . . . . . . . .  	L NEAR	0061	CODE
+SUBR_PRINT . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0083
+
+TOWORK . . . . . . . . . . . . .  	L NEAR	0038	CODE
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  main		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+Microsoft (R) Macro Assembler Version 5.10                  12/9/21 05:07:54
+                                                             Symbols-2
+
+
+
+    143 Source  Lines
+    143 Total   Lines
+     27 Symbols
+
+  47472 + 459788 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
