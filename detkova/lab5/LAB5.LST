@@ -1,0 +1,180 @@
+Microsoft (R) Macro Assembler Version 5.10                  12/15/21 22:06:1
+                                                             Page     1-1
+
+
+ 0000				AStack    SEGMENT  STACK
+ 0000  0014[			          DW 20 DUP('!')
+	   0021			
+			 ]	
+				
+ 0028				AStack    ENDS
+				
+				
+ 0000				DATA      SEGMENT
+				
+ 0000  0000			    KEEP_CS DW 0
+ 0002  0000			    KEEP_IP DW 0
+				
+ 0004				DATA      ENDS
+				
+				
+ 0000				CODE      SEGMENT
+				
+				ASSUME CS:CODE, SS:AStack, DS:DATA
+				
+				
+ 0000				SUBR_INT  PROC FAR
+				
+ 0000  E9 0407 R		          jmp handle
+ 0003  0000			          SS_int dw 0
+ 0005  0000			          SP_int dw 0
+ 0007  0200[			          int_Stack DW 512 DUP('0')
+	   0030			
+			 ]	
+				
+				          
+ 0407				          handle:
+				          
+ 0407  2E: 8C 16 0003 R		          mov SS_int, SS
+ 040C  2E: 89 26 0005 R		          mov SP_int, SP
+				          
+ 0411  BC ---- R		          mov SP, seg int_Stack
+ 0414  8E D4			          mov SS, SP
+ 0416  BC 0407 R		          mov SP, offset handle
+				                  
+ 0419  50			          push ax
+ 041A  51			          push cx
+				          
+				  
+ 041B  B0 B6			          mov     al, 10110110b
+ 041D  E6 43			          out     43h, al         
+ 041F  8B C3			          mov     ax, bx
+ 0421  E6 42			          out     42h, al 
+ 0423  8A C4			          mov     al, ah 
+ 0425  E6 42			          out     42h, al
+				          
+Microsoft (R) Macro Assembler Version 5.10                  12/15/21 22:06:1
+                                                             Page     1-2
+
+
+ 0427  E4 61			          in      al,61h
+ 0429  0C 03			          or      al,03h
+ 042B  E6 61			          out     61h,al
+				          
+ 042D  2B C9			          sub cx, cx
+ 042F  E2 FE			          TIME: LOOP TIME
+				          
+ 0431  E4 61				  in      al,61h
+ 0433  24 FC				  and     al,0fch
+ 0435  E6 61				  out     61h,al
+					  
+				          
+ 0437  59			          pop cx
+ 0438  58			          pop ax
+				          
+ 0439  2E: 8E 16 0003 R		          mov SS, SS_int
+ 043E  2E: 8B 26 0005 R		          mov SP, SP_int
+				          
+ 0443  B0 20			          MOV AL, 20H
+ 0445  E6 20			          OUT 20H,AL
+				          
+ 0447  CF			          IRET
+ 0448				SUBR_INT  ENDP
+				
+ 0448				MAIN	  PROC  FAR
+					  
+ 0448  1E				  push  DS      
+ 0449  2B C0				  sub   AX,AX   
+ 044B  50				  push  AX      
+ 044C  B8 ---- R			  mov   AX,DATA 
+ 044F  8E D8				  mov   DS,AX               
+				          
+ 0451  B4 35			          mov AH, 35h
+ 0453  B0 08			          mov AL, 08h
+ 0455  CD 21			          int 21h
+ 0457  89 1E 0002 R		          mov KEEP_IP, bx
+ 045B  8C 06 0000 R		          mov KEEP_CS, es
+				          
+ 045F  1E			          push ds
+ 0460  BA 0000 R		          mov dx, offset SUBR_INT
+ 0463  B8 ---- R		          mov ax, seg SUBR_INT
+ 0466  8E D8			          mov ds, ax
+ 0468  B4 25			          mov ah, 25h
+ 046A  B0 08			          mov al, 08h
+ 046C  CD 21			          int 21h
+ 046E  1F			          pop ds
+					  
+ 046F  BB 0FA0				  mov bx, 4000 
+Microsoft (R) Macro Assembler Version 5.10                  12/15/21 22:06:1
+                                                             Page     1-3
+				          
+ 0472				          get_key:
+				             
+ 0472  B4 00			             mov ah, 0h
+ 0474  CD 16			             int 16h
+ 0476  3C 1B			             cmp al, 27
+				             
+ 0478  75 F8			          jne get_key
+					  
+ 047A  FA			          cli
+ 047B  1E			          push DS
+ 047C  8B 16 0002 R		          mov  DX, KEEP_IP
+ 0480  A1 0000 R		          mov  AX, KEEP_CS
+ 0483  8E D8			          mov  DS, AX
+ 0485  B4 25			          mov ah, 25h
+ 0487  B0 08			          mov al, 08h
+ 0489  CD 21			          int  21H
+ 048B  1F			          pop  DS
+ 048C  FB			          sti
+					  
+ 048D  CB			          ret                     
+				                                            
+ 048E				Main      ENDP
+ 048E				CODE      ENDS
+				          END MAIN     
+Microsoft (R) Macro Assembler Version 5.10                  12/15/21 22:06:1
+                                                             Symbols-1
+
+
+Segments and Groups:
+
+                N a m e         	Length	 Align	Combine Class
+
+ASTACK . . . . . . . . . . . . .  	0028	PARA	STACK	
+CODE . . . . . . . . . . . . . .  	048E	PARA	NONE	
+DATA . . . . . . . . . . . . . .  	0004	PARA	NONE	
+
+Symbols:            
+
+                N a m e         	Type	 Value	 Attr
+
+GET_KEY  . . . . . . . . . . . .  	L NEAR	0472	CODE
+
+HANDLE . . . . . . . . . . . . .  	L NEAR	0407	CODE
+
+INT_STACK  . . . . . . . . . . .  	L WORD	0007	CODE	Length = 0200
+
+KEEP_CS  . . . . . . . . . . . .  	L WORD	0000	DATA
+KEEP_IP  . . . . . . . . . . . .  	L WORD	0002	DATA
+
+MAIN . . . . . . . . . . . . . .  	F PROC	0448	CODE	Length = 0046
+
+SP_INT . . . . . . . . . . . . .  	L WORD	0005	CODE
+SS_INT . . . . . . . . . . . . .  	L WORD	0003	CODE
+SUBR_INT . . . . . . . . . . . .  	F PROC	0000	CODE	Length = 0448
+
+TIME . . . . . . . . . . . . . .  	L NEAR	042F	CODE
+
+@CPU . . . . . . . . . . . . . .  	TEXT  0101h		
+@FILENAME  . . . . . . . . . . .  	TEXT  lab5		
+@VERSION . . . . . . . . . . . .  	TEXT  510		
+
+
+    118 Source  Lines
+    118 Total   Lines
+     18 Symbols
+
+  48000 + 459257 Bytes symbol space free
+
+      0 Warning Errors
+      0 Severe  Errors
